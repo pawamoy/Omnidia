@@ -1,0 +1,8 @@
+Django==1.6.5
+argparse==1.2.1
+django-easymode==0.14.5
+django-modeltranslation==0.8
+django-rosetta==0.7.0
+django-suit==0.2.11
+six==1.7.3
+wsgiref==0.1.2
