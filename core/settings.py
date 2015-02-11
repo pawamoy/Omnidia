@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
 
+from django.utils.translation import ugettext_lazy as _
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -33,7 +35,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # 'modeltranslation',  # it is not very useful to translate contents...
     'omnidia',
 )
 
@@ -90,7 +91,7 @@ ADMINS = (
     ('Timothée Mazzucotelli', 'timothee.mazzucotelli@gmail.com'),
 )
 TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'templates')
+    os.path.join(BASE_DIR, 'templates'),
 )
 APPEND_SLASH = True # Ajoute un slash en fin d'URL
 
@@ -108,18 +109,66 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 ################################################################################
+
+# Django suit -----------------------------------------------------------------
 SUIT_CONFIG = {
     'ADMIN_NAME': 'Django Suit',
     'SEARCH_URL': '/admin/auth/user/',
-    'MENU_ICONS': {
-        # 'sites': 'icon-leaf',
-        # 'auth': 'icon-lock',
-        # 'avatar': 'icon-picture',
-        # 'questionnaires': 'icon-align-left',
-        # 'news': 'icon-comment',
-        # 'members': 'icon-user',
-    },
-    # 'MENU_EXCLUDE': ('questionnaires.questionnairequestion',),
+    'MENU': (
+        # 'sites',
+        {'label': _('Omnidia homepage'), 'icon': 'icon-home',
+         'url': '/'},
+        '-',
+        {'app': 'auth', 'icon': 'icon-lock'},
+        '-',
+        {'label': 'General', 'models': (
+            'omnidia.dataset',
+            'omnidia.datasetvalue',
+            'omnidia.datatype',
+        )},
+        '-',
+        {'label': 'Files', 'models': (
+            'omnidia.file',
+            'omnidia.filetype',
+        )},
+        {'label': 'File fields', 'models': (
+            'omnidia.filedatasetfield',
+            'omnidia.filespecificfield',
+            'omnidia.fileglobalfield'
+        )},
+        {'label': 'File values', 'models': (
+            'omnidia.filedatasetvalue',
+            'omnidia.filespecificvalue',
+            'omnidia.fileglobalvalue'
+        )},
+        '-',
+        {'label': 'Models', 'models': (
+            'omnidia.model',
+            'omnidia.object',
+            'omnidia.objectlink',
+            'omnidia.objectfile',
+            'omnidia.linkdata',
+        )},
+        {'label': 'Model fields', 'models': (
+            'omnidia.modeldatasetfield',
+            'omnidia.modelspecificfield',
+            'omnidia.modelglobalfield',
+            'omnidia.modelglobaldatasetfield',
+            'omnidia.modelmodelfield',
+        )},
+        {'label': 'Model values', 'models': (
+            'omnidia.modeldatasetvalue',
+            'omnidia.modelspecificvalue',
+            'omnidia.modelglobalvalue',
+            'omnidia.modelglobaldatasetvalue',
+            'omnidia.modelmodelvalue',
+        )}
+    ),
+    # 'MENU_EXCLUDE': (
+    #     'dataforms.collectiondataform',
+    #     'dataforms.dataformfield',
+    #     'dataforms.fieldchoice',
+    #     'dataforms.answerchoice',
+    # ),
     'LIST_PER_PAGE': 20
 }
-

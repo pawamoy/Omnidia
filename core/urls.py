@@ -9,7 +9,6 @@ urlpatterns = patterns(
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^rosetta/', include('rosetta.urls')),
     url(r'^home/', 'omnidia.views.home'),
 )
 

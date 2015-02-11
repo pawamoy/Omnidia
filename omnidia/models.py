@@ -13,9 +13,11 @@ class Dataset(models.Model):
 
 
 class DatasetValue(models.Model):
-    # TODO: couples uniques
     dataset = models.ForeignKey(Dataset)
     value = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = ('dataset', 'value')
 
 
 class DataType(models.Model):
@@ -48,15 +50,19 @@ class FileGenericField(models.Model):
 
 
 class FileDatasetField(FileGenericField):
-    # TODO: couples (filetype, name) uniques
     dataset = models.ForeignKey(Dataset)
     filetype = models.ForeignKey(FileType)
 
+    class Meta:
+        unique_together = ('filetype', 'name')
+
 
 class FileSpecificField(FileGenericField):
-    # TODO: couples (filetype, name) uniques
     filetype = models.ForeignKey(FileType)
     datatype = models.ForeignKey(DataType)
+
+    class Meta:
+        unique_together = ('filetype', 'name')
 
 
 class FileGlobalField(FileGenericField):
@@ -100,9 +106,11 @@ class Object(models.Model):
 
 
 class ObjectLink(models.Model):
-    # TODO: couples uniques
     object_ref1 = models.ForeignKey(Object, related_name='+')
     object_ref2 = models.ForeignKey(Object, related_name='+')
+
+    class Meta:
+        unique_together = ('object_ref1', 'object_ref2')
 
 
 class LinkData(models.Model):
@@ -111,9 +119,11 @@ class LinkData(models.Model):
 
 
 class ObjectFile(models.Model):
-    # TODO: couples uniques
     object = models.ForeignKey(Object)
     file = models.ForeignKey(File)
+
+    class Meta:
+        unique_together = ('object', 'file')
 
 
 ################################################################################
@@ -129,15 +139,19 @@ class ModelGenericField(models.Model):
 
 
 class ModelDatasetField(ModelGenericField):
-    # TODO: couples (model, name) uniques
     dataset = models.ForeignKey(Dataset)
     model = models.ForeignKey(Model)
 
+    class Meta:
+        unique_together = ('model', 'name')
+
 
 class ModelSpecificField(ModelGenericField):
-    # TODO: couples (model, name) uniques
     model = models.ForeignKey(Model)
     datatype = models.ForeignKey(DataType)
+
+    class Meta:
+        unique_together = ('model', 'name')
 
 
 class ModelGlobalField(ModelGenericField):
@@ -149,9 +163,11 @@ class ModelGlobalDatasetField(ModelGenericField):
 
 
 class ModelModelField(ModelGenericField):
-    # TODO: couples (source, name) uniques
     source = models.ForeignKey(Model, related_name='+')
     target = models.ForeignKey(Model, related_name='+')
+
+    class Meta:
+        unique_together = ('source', 'name')
 
 
 ################################################################################
