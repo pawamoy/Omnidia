@@ -46,9 +46,10 @@ class FileType(models.Model):
 
 class File(models.Model):
     name = models.CharField(_('Filename'), max_length=255)
-    link = models.FilePathField(_('File location'))
+    # TODO: FieldField or FilePathField ?
+    file = models.FileField(_('File location'))
     type = models.ForeignKey(FileType, verbose_name=_('File type'))
-    hash = models.CharField
+    hash = models.CharField(_('SHA256 Hash'), max_length=256)
 
     def __str__(self):
         return self.name

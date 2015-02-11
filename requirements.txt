@@ -1,5 +1,4 @@
 Django==1.7.4
-argparse==1.2.1
 django-extensions==1.5.0
 django-modeltranslation==0.8
 django-rosetta==0.7.5
@@ -8,4 +7,3 @@ microsofttranslator==0.5
 polib==1.0.4
 requests==2.5.1
 six==1.9.0
-wsgiref==0.1.2
