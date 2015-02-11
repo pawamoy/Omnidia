@@ -35,6 +35,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
+    'modeltranslation',
     'omnidia',
 )
 
@@ -72,7 +74,6 @@ gettext = lambda x: x
 LANGUAGES = (
     ('en-us', gettext('English')),
     ('fr', gettext('French')),
-    ('de', gettext('German')),
 )
 
 LOCALE_PATHS = (
@@ -93,7 +94,7 @@ ADMINS = (
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
 )
-APPEND_SLASH = True # Ajoute un slash en fin d'URL
+APPEND_SLASH = True
 
 # Context Processors
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -121,42 +122,42 @@ SUIT_CONFIG = {
         '-',
         {'app': 'auth', 'icon': 'icon-lock'},
         '-',
-        {'label': 'General', 'models': (
+        {'label': _('General'), 'models': (
             'omnidia.dataset',
             'omnidia.datasetvalue',
             'omnidia.datatype',
         )},
         '-',
-        {'label': 'Files', 'models': (
+        {'label': _('Files'), 'models': (
             'omnidia.file',
             'omnidia.filetype',
         )},
-        {'label': 'File fields', 'models': (
+        {'label': _('File fields'), 'models': (
             'omnidia.filedatasetfield',
             'omnidia.filespecificfield',
             'omnidia.fileglobalfield'
         )},
-        {'label': 'File values', 'models': (
+        {'label': _('File values'), 'models': (
             'omnidia.filedatasetvalue',
             'omnidia.filespecificvalue',
             'omnidia.fileglobalvalue'
         )},
         '-',
-        {'label': 'Models', 'models': (
+        {'label': _('Models'), 'models': (
             'omnidia.model',
             'omnidia.object',
             'omnidia.objectlink',
             'omnidia.objectfile',
             'omnidia.linkdata',
         )},
-        {'label': 'Model fields', 'models': (
+        {'label': _('Model fields'), 'models': (
             'omnidia.modeldatasetfield',
             'omnidia.modelspecificfield',
             'omnidia.modelglobalfield',
             'omnidia.modelglobaldatasetfield',
             'omnidia.modelmodelfield',
         )},
-        {'label': 'Model values', 'models': (
+        {'label': _('Model values'), 'models': (
             'omnidia.modeldatasetvalue',
             'omnidia.modelspecificvalue',
             'omnidia.modelglobalvalue',
