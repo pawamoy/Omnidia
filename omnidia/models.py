@@ -9,10 +9,22 @@ from django.utils.translation import ugettext_lazy as _
 # OMNIDIA GENERAL
 
 class DataType(models.Model):
-    name = models.CharField(max_length=30)
+    DATATYPE_CHOICES = (
+        ['text', _('Text')],
+        ['date', _('Date')],
+        ['datetime', _('Datetime')],
+        ['time', _('Time')],
+        ['integer', _('Integer')],
+        ['float', _('Float')],
+        ['binary', _('Binary')],
+    )
+    name = models.CharField(max_length=30, choices=DATATYPE_CHOICES)
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        return 'DataType(%r)' % self.name
 
 
 class Dataset(models.Model):
@@ -21,6 +33,9 @@ class Dataset(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        return 'Dataset(%r, %r)' % (self.name, self.datatype)
 
 
 class DatasetValue(models.Model):
@@ -33,6 +48,9 @@ class DatasetValue(models.Model):
     def __str__(self):
         return self.value
 
+    def __repr__(self):
+        return 'DatasetValue(%r, %r)' % (self.dataset, self.value)
+
 
 ################################################################################
 # OMNIDIA FILES
@@ -42,6 +60,9 @@ class FileType(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        return 'FileType(%r)' % self.name
 
 
 class File(models.Model):
@@ -53,6 +74,10 @@ class File(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        return 'File(%r, %r, %r, %r)' % (self.name, self.file,
+                                         self.type, self.hash)
 
 
 ################################################################################
@@ -69,6 +94,10 @@ class FileGenericField(models.Model):
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return 'FileGenericField(%r, %r, %r)' % (
+            self.name, self.minimum, self.maximum)
+
 
 class FileDatasetField(FileGenericField):
     dataset = models.ForeignKey(Dataset, related_name='file_fields')
@@ -76,6 +105,10 @@ class FileDatasetField(FileGenericField):
 
     class Meta:
         unique_together = ('filetype', 'name')
+
+    def __repr__(self):
+        return 'FileDatasetField(%r, %r, %r, %r, %r)' % (
+            self.name, self.minimum, self.maximum, self.dataset, self.filetype)
 
 
 class FileSpecificField(FileGenericField):
@@ -85,9 +118,17 @@ class FileSpecificField(FileGenericField):
     class Meta:
         unique_together = ('filetype', 'name')
 
+    def __repr__(self):
+        return 'FileSpecificField(%r, %r, %r, %r, %r)' % (
+            self.name, self.minimum, self.maximum, self.filetype, self.datatype)
+
 
 class FileGlobalField(FileGenericField):
     datatype = models.ForeignKey(DataType, related_name='file_global_fields')
+
+    def __repr__(self):
+        return 'FileGlobalField(%r, %r, %r, %r)' % (
+            self.name, self.minimum, self.maximum, self.dataype)
 
 
 ################################################################################
@@ -102,19 +143,40 @@ class FileGenericValue(models.Model):
     def __str__(self):
         return str(self.value)
 
+    def __repr__(self):
+        return 'FileDatasetValue(%r)' % self.file
+
 
 class FileDatasetValue(FileGenericValue):
     value = models.ForeignKey(DatasetValue, related_name='file_values')
+
+    def __repr__(self):
+        return 'FileDatasetField(%r, %r)' % (self.file, self.value)
 
 
 class FileSpecificValue(FileGenericValue):
     field = models.ForeignKey(FileSpecificField, related_name='values')
     value = models.TextField()
 
+    def __repr__(self):
+        return 'FileSpecificField(%r, %r, %r)' % (
+            self.file, self.field, self.value)
+
 
 class FileGlobalValue(FileGenericValue):
     field = models.ForeignKey(FileGlobalField, related_name='values')
     value = models.TextField()
+
+    def __repr__(self):
+        return 'FileGlobalField(%r, %r, %r)' % (
+            self.file, self.field, self.value)
+
+
+class FileGlobalDatasetField(FileGenericField):
+    dataset = models.ForeignKey(Dataset, related_name='file_global_fields')
+
+    def __repr__(self):
+        return 'FileDatasetField(%r, %r)' % (self.file, self.dataset)
 
 
 ################################################################################
@@ -126,6 +188,9 @@ class Model(models.Model):
     def __str__(self):
         return self.name
 
+    def __repr__(self):
+        return 'Model(%r)' % self.name
+
 
 class Object(models.Model):
     name = models.CharField(max_length=255)
@@ -133,6 +198,9 @@ class Object(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        return 'Object(%r, %r)' % (self.name, self.model)
 
 
 class ObjectLink(models.Model):
@@ -143,7 +211,10 @@ class ObjectLink(models.Model):
         unique_together = ('object_ref1', 'object_ref2')
 
     def __str__(self):
-        return '%s - %s' % (str(self.object_ref1), str(self.object_ref2))
+        return '%s - %s' % (self.object_ref1, self.object_ref2)
+
+    def __repr__(self):
+        return 'ObjectLink(%r, %r)' % (self.object_ref1, self.object_ref2)
 
 
 class LinkData(models.Model):
@@ -152,6 +223,9 @@ class LinkData(models.Model):
 
     def __str__(self):
         return str(self.link)
+
+    def __repr__(self):
+        return 'LinkData(%r)' % self.link
 
 
 class ObjectFile(models.Model):
@@ -162,7 +236,10 @@ class ObjectFile(models.Model):
         unique_together = ('object', 'file')
 
     def __str__(self):
-        return '%s - %s' % (str(self.object), str(self.file))
+        return '%s - %s' % (self.object, self.file)
+
+    def __repr__(self):
+        return 'ObjectFile(%r, %r)' % (self.object, self.file)
 
 
 ################################################################################
@@ -178,6 +255,10 @@ class ModelGenericField(models.Model):
 
     def __str__(self):
         return self.name
+
+    def __repr__(self):
+        return 'ModelField(%r, %r, %r)' % (
+            self.name, self.minimum, self.maximum)
 
 
 class ModelDatasetField(ModelGenericField):
@@ -238,6 +319,11 @@ class ModelSpecificValue(ModelGenericValue):
 class ModelGlobalValue(ModelGenericValue):
     field = models.ForeignKey(ModelGlobalField, related_name='values')
     value = models.TextField()
+
+
+class ModelGlobalDatasetValue(ModelGenericValue):
+    field = models.ForeignKey(ModelGlobalDatasetField, related_name='values')
+    value = models.ForeignKey(DatasetValue, related_name='model_global_values')
 
 
 class ModelModelValue(ModelGenericValue):
