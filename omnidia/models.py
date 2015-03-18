@@ -1,5 +1,7 @@
+import hashlib
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from omnidia.utils import hashfile
 # TODO: set model methods
 # FIXME: all max_length=30 to 255 ?
 
@@ -44,6 +46,10 @@ class DataType(models.Model):
     def __repr__(self):
         return 'DataType(%r)' % self.name
 
+    @staticmethod
+    def get_types():
+        return DataType.DATATYPE_CHOICES
+
 
 class Dataset(models.Model):
     """A dataset is an array of static values. Each value of the same dataset
@@ -64,6 +70,23 @@ class Dataset(models.Model):
 
     def __repr__(self):
         return 'Dataset(%r, %r)' % (self.name, self.datatype)
+
+    @staticmethod
+    def new(**kwargs):
+        return Dataset.objects.create(**kwargs)
+
+    def add(self, value):
+        DatasetValue.objects.create(dataset=self, value=value)
+
+    def get(self, value):
+        try:
+            return DatasetValue.objects.get(dataset=self, value=value)
+        except DatasetValue.DoesNotExist:
+            return None
+
+    def remove(self, value):
+        dv = self.get(value)
+        return True if dv and dv.delete() else False
 
 
 class DatasetValue(models.Model):
@@ -108,6 +131,10 @@ class FileType(models.Model):
     def __repr__(self):
         return 'FileType(%r)' % self.name
 
+    @staticmethod
+    def new(name):
+        return FileType.objects.create(name=name)
+
 
 class File(models.Model):
     """The File model represents file that are tracked by Omnidia.
@@ -135,6 +162,9 @@ class File(models.Model):
     def __repr__(self):
         return 'File(%r, %r, %r, %r)' % (self.name, self.file,
                                          self.type, self.hash)
+
+    def refresh_hash(self):
+        self.hash = hashfile(open(self.file.path, 'rb'), hashlib.sha256())
 
 
 ###############################################################################
