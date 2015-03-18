@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 # TODO: set help_text and other methods
-# TODO: set docstrings
-# TODO: add FileGlobalDatasetField ?
+# TODO: all max_length=30 to 255 ?
 
 
 ###############################################################################
@@ -142,8 +141,8 @@ class File(models.Model):
 # OMNIDIA FILE FIELDS
 
 class FileGenericField(models.Model):
-    """The abstract file field model. Each file field has a name, minimum
-    and maximum value that defaults to 0.
+    """The abstract file field model. Each file field has a name, a minimum
+    and a maximum value that defaults to 0 (which means unlimited).
     """
 
     name = models.CharField(_('Field name'), max_length=30)
@@ -265,7 +264,6 @@ class FileDatasetValue(FileGenericValue):
     """The values of dataset fields.
     """
 
-    # TODO: add key to field
     value = models.ForeignKey(DatasetValue,
                               verbose_name=_('Value'),
                               related_name='file_values')
@@ -318,10 +316,9 @@ class FileGlobalDatasetValue(FileGenericValue):
     """The values of global dataset fields.
     """
 
-    # TODO: add key to field
     value = models.ForeignKey(DatasetValue,
                               verbose_name=_('Value'),
-                              related_name='file_values')
+                              related_name='file_global_values')
 
     class Meta:
         verbose_name = _('File global dataset value')
@@ -335,6 +332,11 @@ class FileGlobalDatasetValue(FileGenericValue):
 # OMNIDIA MODELS
 
 class Model(models.Model):
+    """Model instances are entities that define the properties of objects.
+    A Model instance is constructed with a name, then you can add fields to it,
+    through the ModelField models.
+    """
+
     name = models.CharField(_('Name'), max_length=30)
 
     class Meta:
@@ -349,6 +351,11 @@ class Model(models.Model):
 
 
 class Object(models.Model):
+    """An Object instance is an instance of a some Model. It is an object
+    composed of the Model fields as values. Each object is attached to a
+    specific Model in order to know which information to search for.
+    """
+
     name = models.CharField(_('Name'), max_length=255)
     model = models.ForeignKey(Model,
                               verbose_name=_('Model'),
@@ -366,6 +373,10 @@ class Object(models.Model):
 
 
 class ObjectLink(models.Model):
+    """Minimalist links between objects. Use the LinkData model to add
+    information on links.
+    """
+
     object_ref1 = models.ForeignKey(Object,
                                     verbose_name=_('Object A'),
                                     related_name='links_to')
@@ -386,6 +397,9 @@ class ObjectLink(models.Model):
 
 
 class LinkData(models.Model):
+    """Information about links between objects.
+    """
+
     link = models.ForeignKey(ObjectLink,
                              verbose_name=_('Link'),
                              related_name='data')
@@ -403,6 +417,10 @@ class LinkData(models.Model):
 
 
 class ObjectFile(models.Model):
+    """Association between an object and files. It is the way to attach
+    files to abstract objects.
+    """
+
     object = models.ForeignKey(Object,
                                verbose_name=_('Object'),
                                related_name='files')
@@ -426,6 +444,10 @@ class ObjectFile(models.Model):
 # OMNIDIA MODEL FIELDS
 
 class ModelGenericField(models.Model):
+    """The abstract model field model. Each model field has a name,
+    a minimum and a maximum value that defaults to 0 (which means unlimited).
+    """
+
     name = models.CharField(_('Name'), max_length=30)
     minimum = models.PositiveSmallIntegerField(_('Minimum'), default=0)
     maximum = models.PositiveSmallIntegerField(_('Maximum'), default=0)
@@ -444,6 +466,9 @@ class ModelGenericField(models.Model):
 
 
 class ModelDatasetField(ModelGenericField):
+    """A field to store a dataset value for a particular model.
+    """
+
     dataset = models.ForeignKey(Dataset,
                                 verbose_name=_('Dataset'),
                                 related_name='model_fields')
@@ -462,6 +487,9 @@ class ModelDatasetField(ModelGenericField):
 
 
 class ModelSpecificField(ModelGenericField):
+    """A field to store a value of a certain type for a particular model.
+    """
+
     model = models.ForeignKey(Model,
                               verbose_name=_('Model'),
                               related_name='specific_fields')
@@ -480,6 +508,9 @@ class ModelSpecificField(ModelGenericField):
 
 
 class ModelGlobalField(ModelGenericField):
+    """A field to store a value of a certain type for all models.
+    """
+
     datatype = models.ForeignKey(DataType,
                                  verbose_name=_('Data type'),
                                  related_name='model_global_fields')
@@ -494,6 +525,9 @@ class ModelGlobalField(ModelGenericField):
 
 
 class ModelGlobalDatasetField(ModelGenericField):
+    """A field to store a dataset value for all models.
+    """
+
     dataset = models.ForeignKey(Dataset,
                                 verbose_name=_('Dataset'),
                                 related_name='model_global_fields')
@@ -508,6 +542,9 @@ class ModelGlobalDatasetField(ModelGenericField):
 
 
 class ModelModelField(ModelGenericField):
+    """A field to store the reference to another model for a particular model.
+    """
+
     source = models.ForeignKey(Model,
                                verbose_name=_('Source'),
                                related_name='include')
@@ -529,6 +566,10 @@ class ModelModelField(ModelGenericField):
 # OMNIDIA MODEL VALUES
 
 class ModelGenericValue(models.Model):
+    """The abstract field value model. The value is always attached to a
+    specific object (Object model).
+    """
+
     object = models.ForeignKey(Object,
                                verbose_name=_('Object'),
                                related_name='+')
@@ -546,6 +587,9 @@ class ModelGenericValue(models.Model):
 
 
 class ModelDatasetValue(ModelGenericValue):
+    """The values of dataset fields.
+    """
+
     field = models.ForeignKey(ModelDatasetField,
                               verbose_name=_('Field'),
                               related_name='values')
@@ -563,6 +607,9 @@ class ModelDatasetValue(ModelGenericValue):
 
 
 class ModelSpecificValue(ModelGenericValue):
+    """The values of specific fields.
+    """
+
     field = models.ForeignKey(ModelSpecificField,
                               verbose_name=_('Field'),
                               related_name='values')
@@ -578,6 +625,9 @@ class ModelSpecificValue(ModelGenericValue):
 
 
 class ModelGlobalValue(ModelGenericValue):
+    """The values of global fields.
+    """
+
     value = models.TextField(_('Value'))
     field = models.ForeignKey(ModelGlobalField,
                               verbose_name=_('Field'),
@@ -593,6 +643,9 @@ class ModelGlobalValue(ModelGenericValue):
 
 
 class ModelGlobalDatasetValue(ModelGenericValue):
+    """The values of global dataset fields.
+    """
+
     field = models.ForeignKey(ModelGlobalDatasetField,
                               verbose_name=_('Field'),
                               related_name='values')
@@ -610,6 +663,9 @@ class ModelGlobalDatasetValue(ModelGenericValue):
 
 
 class ModelModelValue(ModelGenericValue):
+    """The values of model-to-model fields.
+    """
+
     field = models.ForeignKey(ModelModelField,
                               verbose_name=_('Field'),
                               related_name='values')
