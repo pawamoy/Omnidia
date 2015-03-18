@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-# TODO: set help_text and other methods
-# TODO: all max_length=30 to 255 ?
+# TODO: set model methods
+# FIXME: all max_length=30 to 255 ?
 
 
 ###############################################################################
@@ -118,9 +118,9 @@ class File(models.Model):
     """
 
     name = models.CharField(_('Filename'), max_length=255)
-    # TODO: FileField or FilePathField ?
+    # FIXME: FileField or FilePathField ?
     file = models.FileField(_('File location'))
-    hash = models.CharField(_('SHA256 Hash'), max_length=256)
+    hash = models.CharField(_('SHA256 hash'), max_length=256)
     type = models.ForeignKey(FileType,
                              verbose_name=_('File type'),
                              related_name='files')
@@ -146,8 +146,12 @@ class FileGenericField(models.Model):
     """
 
     name = models.CharField(_('Field name'), max_length=30)
-    minimum = models.PositiveSmallIntegerField(_('Minimum'), default=0)
-    maximum = models.PositiveSmallIntegerField(_('Maximum'), default=0)
+    minimum = models.PositiveSmallIntegerField(
+        _('Minimum'), default=0,
+        help_text=_('Set to 0 to make this field optional'))
+    maximum = models.PositiveSmallIntegerField(
+        _('Maximum'), default=0,
+        help_text=_('Set to 0 to have no limitation'))
 
     class Meta:
         verbose_name = _('File generic field')
@@ -264,6 +268,9 @@ class FileDatasetValue(FileGenericValue):
     """The values of dataset fields.
     """
 
+    field = models.ForeignKey(FileDatasetField,
+                              verbose_name=_('Field'),
+                              related_name='values')
     value = models.ForeignKey(DatasetValue,
                               verbose_name=_('Value'),
                               related_name='file_values')
@@ -316,6 +323,9 @@ class FileGlobalDatasetValue(FileGenericValue):
     """The values of global dataset fields.
     """
 
+    field = models.ForeignKey(FileGlobalDatasetField,
+                              verbose_name=_('Field'),
+                              related_name='values')
     value = models.ForeignKey(DatasetValue,
                               verbose_name=_('Value'),
                               related_name='file_global_values')
@@ -377,12 +387,15 @@ class ObjectLink(models.Model):
     information on links.
     """
 
+    help_text = _('Order matters. It is like an arrow pointing on B from A.')
     object_ref1 = models.ForeignKey(Object,
                                     verbose_name=_('Object A'),
-                                    related_name='links_to')
+                                    related_name='links_to',
+                                    help_text=help_text)
     object_ref2 = models.ForeignKey(Object,
                                     verbose_name=_('Object B'),
-                                    related_name='links_from')
+                                    related_name='links_from',
+                                    help_text=help_text)
 
     class Meta:
         verbose_name = _('Object link')
@@ -449,8 +462,12 @@ class ModelGenericField(models.Model):
     """
 
     name = models.CharField(_('Name'), max_length=30)
-    minimum = models.PositiveSmallIntegerField(_('Minimum'), default=0)
-    maximum = models.PositiveSmallIntegerField(_('Maximum'), default=0)
+    minimum = models.PositiveSmallIntegerField(
+        _('Minimum'), default=0,
+        help_text=_('Set to 0 to make this field optional'))
+    maximum = models.PositiveSmallIntegerField(
+        _('Maximum'), default=0,
+        help_text=_('Set to 0 to have no limitation'))
 
     class Meta:
         verbose_name = _('Model generic field')
@@ -547,10 +564,12 @@ class ModelModelField(ModelGenericField):
 
     source = models.ForeignKey(Model,
                                verbose_name=_('Source'),
-                               related_name='include')
+                               related_name='include',
+                               help_text=_('Source model'))
     target = models.ForeignKey(Model,
                                verbose_name=_('Target'),
-                               related_name='included_in')
+                               related_name='included_in',
+                               help_text=_('Targeted model'))
 
     class Meta:
         verbose_name = _('Model to-model field')
