@@ -35,6 +35,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'watchdog',
+    'rosetta',
     'django_extensions',
     'modeltranslation',
     'omnidia',
@@ -87,7 +89,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 MEDIA_URL = '/media/'
-STATIC_ROOT = os.path.join(BASE_DIR, '../static')
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
 ADMINS = (
     ('Timothée Mazzucotelli', 'timothee.mazzucotelli@gmail.com'),
 )

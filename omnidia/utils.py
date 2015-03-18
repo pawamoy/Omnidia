@@ -7,3 +7,5 @@ def hashfile(afile, hasher, blocksize=65536):
 
 # [(fname, hashfile(open(fname, 'rb'), hashlib.sha256()))
 #  for fname in fnamelst]
+
+
