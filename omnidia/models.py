@@ -1,6 +1,7 @@
 import hashlib
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from omnidia.decorators import autoconnect
 from omnidia.utils import hashfile
 # TODO: set model methods
 # FIXME: all max_length=30 to 255 ?
@@ -136,6 +137,7 @@ class FileType(models.Model):
         return FileType.objects.create(name=name)
 
 
+@autoconnect
 class File(models.Model):
     """The File model represents file that are tracked by Omnidia.
 
@@ -162,6 +164,11 @@ class File(models.Model):
     def __repr__(self):
         return 'File(%r, %r, %r, %r)' % (self.name, self.file,
                                          self.type, self.hash)
+
+    def pre_save(self):
+        if self._old_file != self.file:
+            self.refresh_hash()
+        self._old_file = self.file
 
     def refresh_hash(self):
         self.hash = hashfile(open(self.file.path, 'rb'), hashlib.sha256())
