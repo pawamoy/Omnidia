@@ -1,12 +1,29 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-# TODO: set verbose_name and help_text, other methods
+# TODO: set help_text and other methods
+# TODO: set docstrings
+# TODO: add FileGlobalDatasetField ?
 
 
 ###############################################################################
 # OMNIDIA GENERAL
 
 class DataType(models.Model):
+    """The type of data stored in a particular field.
+
+    The available types are hardcoded:
+
+        text
+        date
+        datetime
+        time
+        interger
+        float
+        binary
+
+    We could also add types like hexadecimal, octal, ...
+    """
+
     DATATYPE_CHOICES = (
         ['text', _('Text')],
         ['date', _('Date')],
@@ -30,6 +47,10 @@ class DataType(models.Model):
 
 
 class Dataset(models.Model):
+    """A dataset is an array of static values. Each value of the same dataset
+    has the same type.
+    """
+
     name = models.CharField(_('Name'), max_length=30)
     datatype = models.ForeignKey(DataType,
                                  verbose_name=_('Data type'),
@@ -47,7 +68,11 @@ class Dataset(models.Model):
 
 
 class DatasetValue(models.Model):
-    value = models.CharField(max_length=255)
+    """The values contained in datasets. Each value is stored as text,
+    with a maximum length of 255 characters.
+    """
+
+    value = models.CharField(_('Value'), max_length=255)
     dataset = models.ForeignKey(Dataset,
                                 verbose_name=_('Dataset'),
                                 related_name='values')
@@ -68,6 +93,10 @@ class DatasetValue(models.Model):
 # OMNIDIA FILES
 
 class FileType(models.Model):
+    """The available types for files. Each file type can have specific
+    attributes (through FileField models).
+    """
+
     name = models.CharField(_('File type'), max_length=30)
 
     class Meta:
@@ -82,6 +111,13 @@ class FileType(models.Model):
 
 
 class File(models.Model):
+    """The File model represents file that are tracked by Omnidia.
+
+    It stores the hash of the file, which is recomputed each time the file
+    is modified, and can be used to find files that are not tracked by
+    Omnidia, by comparing their respective hash.
+    """
+
     name = models.CharField(_('Filename'), max_length=255)
     # TODO: FileField or FilePathField ?
     file = models.FileField(_('File location'))
@@ -106,6 +142,10 @@ class File(models.Model):
 # OMNIDIA FILE FIELDS
 
 class FileGenericField(models.Model):
+    """The abstract file field model. Each file field has a name, minimum
+    and maximum value that defaults to 0.
+    """
+
     name = models.CharField(_('Field name'), max_length=30)
     minimum = models.PositiveSmallIntegerField(_('Minimum'), default=0)
     maximum = models.PositiveSmallIntegerField(_('Maximum'), default=0)
@@ -124,6 +164,9 @@ class FileGenericField(models.Model):
 
 
 class FileDatasetField(FileGenericField):
+    """A field to store a dataset value for a particular file type.
+    """
+
     dataset = models.ForeignKey(Dataset,
                                 verbose_name=_('Dataset'),
                                 related_name='file_fields')
@@ -142,6 +185,9 @@ class FileDatasetField(FileGenericField):
 
 
 class FileSpecificField(FileGenericField):
+    """A field to store a value of a certain type for a particular file type.
+    """
+
     filetype = models.ForeignKey(FileType,
                                  verbose_name=_('File type'),
                                  related_name='specific_fields')
@@ -161,6 +207,9 @@ class FileSpecificField(FileGenericField):
 
 
 class FileGlobalField(FileGenericField):
+    """A field to store a value of a certain type for all file types.
+    """
+
     datatype = models.ForeignKey(DataType,
                                  verbose_name=_('Data type'),
                                  related_name='file_global_fields')
@@ -174,10 +223,30 @@ class FileGlobalField(FileGenericField):
             self.name, self.minimum, self.maximum, self.dataype)
 
 
+class FileGlobalDatasetField(FileGenericField):
+    """A field to store dataset values for all file types.
+    """
+
+    dataset = models.ForeignKey(Dataset,
+                                verbose_name=_('Datasets'),
+                                related_name='file_global_fields')
+
+    class Meta:
+        verbose_name = _('File global dataset field')
+        verbose_name_plural = _('File global dataset fields')
+
+    def __repr__(self):
+        return 'FileGlobalDatasetField(%r, %r)' % (self.file, self.dataset)
+
+
 ###############################################################################
 # OMNIDIA FILE VALUES
 
 class FileGenericValue(models.Model):
+    """The abstract field value model. The value is always attached to a
+    specific file (File model).
+    """
+
     file = models.ForeignKey(File, verbose_name=_('File'), related_name='+')
 
     class Meta:
@@ -193,6 +262,10 @@ class FileGenericValue(models.Model):
 
 
 class FileDatasetValue(FileGenericValue):
+    """The values of dataset fields.
+    """
+
+    # TODO: add key to field
     value = models.ForeignKey(DatasetValue,
                               verbose_name=_('Value'),
                               related_name='file_values')
@@ -206,6 +279,9 @@ class FileDatasetValue(FileGenericValue):
 
 
 class FileSpecificValue(FileGenericValue):
+    """The values of specific fields.
+    """
+
     value = models.TextField(_('Value'))
     field = models.ForeignKey(FileSpecificField,
                               verbose_name=_('Field'),
@@ -221,6 +297,9 @@ class FileSpecificValue(FileGenericValue):
 
 
 class FileGlobalValue(FileGenericValue):
+    """The values of global fields.
+    """
+
     value = models.TextField(_('Value'))
     field = models.ForeignKey(FileGlobalField,
                               verbose_name=_('Field'),
@@ -235,17 +314,21 @@ class FileGlobalValue(FileGenericValue):
             self.file, self.field, self.value)
 
 
-class FileGlobalDatasetField(FileGenericField):
-    dataset = models.ForeignKey(Dataset,
-                                verbose_name=_('Datasets'),
-                                related_name='file_global_fields')
+class FileGlobalDatasetValue(FileGenericValue):
+    """The values of global dataset fields.
+    """
+
+    # TODO: add key to field
+    value = models.ForeignKey(DatasetValue,
+                              verbose_name=_('Value'),
+                              related_name='file_values')
 
     class Meta:
         verbose_name = _('File global dataset value')
         verbose_name_plural = _('File global dataset values')
 
     def __repr__(self):
-        return 'FileDatasetField(%r, %r)' % (self.file, self.dataset)
+        return 'FileGlobalDatasetValue(%r, %r)' % (self.file, self.value)
 
 
 ###############################################################################
@@ -361,8 +444,12 @@ class ModelGenericField(models.Model):
 
 
 class ModelDatasetField(ModelGenericField):
-    dataset = models.ForeignKey(Dataset, related_name='model_fields')
-    model = models.ForeignKey(Model, related_name='dataset_fields')
+    dataset = models.ForeignKey(Dataset,
+                                verbose_name=_('Dataset'),
+                                related_name='model_fields')
+    model = models.ForeignKey(Model,
+                              verbose_name=_('Model'),
+                              related_name='dataset_fields')
 
     class Meta:
         verbose_name = _('Model dataset field')
@@ -375,8 +462,11 @@ class ModelDatasetField(ModelGenericField):
 
 
 class ModelSpecificField(ModelGenericField):
-    model = models.ForeignKey(Model, related_name='specific_fields')
+    model = models.ForeignKey(Model,
+                              verbose_name=_('Model'),
+                              related_name='specific_fields')
     datatype = models.ForeignKey(DataType,
+                                 verbose_name=_('Data type'),
                                  related_name='model_specific_fields')
 
     class Meta:
@@ -390,7 +480,9 @@ class ModelSpecificField(ModelGenericField):
 
 
 class ModelGlobalField(ModelGenericField):
-    datatype = models.ForeignKey(DataType, related_name='model_global_fields')
+    datatype = models.ForeignKey(DataType,
+                                 verbose_name=_('Data type'),
+                                 related_name='model_global_fields')
 
     class Meta:
         verbose_name = _('Model global field')
@@ -402,7 +494,9 @@ class ModelGlobalField(ModelGenericField):
 
 
 class ModelGlobalDatasetField(ModelGenericField):
-    dataset = models.ForeignKey(Dataset, related_name='model_global_fields')
+    dataset = models.ForeignKey(Dataset,
+                                verbose_name=_('Dataset'),
+                                related_name='model_global_fields')
 
     class Meta:
         verbose_name = _('Model global dataset field')
@@ -414,8 +508,12 @@ class ModelGlobalDatasetField(ModelGenericField):
 
 
 class ModelModelField(ModelGenericField):
-    source = models.ForeignKey(Model, related_name='include')
-    target = models.ForeignKey(Model, related_name='included_in')
+    source = models.ForeignKey(Model,
+                               verbose_name=_('Source'),
+                               related_name='include')
+    target = models.ForeignKey(Model,
+                               verbose_name=_('Target'),
+                               related_name='included_in')
 
     class Meta:
         verbose_name = _('Model to-model field')
@@ -431,7 +529,9 @@ class ModelModelField(ModelGenericField):
 # OMNIDIA MODEL VALUES
 
 class ModelGenericValue(models.Model):
-    object = models.ForeignKey(Object, related_name='+')
+    object = models.ForeignKey(Object,
+                               verbose_name=_('Object'),
+                               related_name='+')
 
     class Meta:
         verbose_name = _('Model generic value')
@@ -446,8 +546,12 @@ class ModelGenericValue(models.Model):
 
 
 class ModelDatasetValue(ModelGenericValue):
-    field = models.ForeignKey(ModelDatasetField, related_name='values')
-    value = models.ForeignKey(DatasetValue, related_name='model_values')
+    field = models.ForeignKey(ModelDatasetField,
+                              verbose_name=_('Field'),
+                              related_name='values')
+    value = models.ForeignKey(DatasetValue,
+                              verbose_name=_('Value'),
+                              related_name='model_values')
 
     class Meta:
         verbose_name = _('Model dataset value')
@@ -459,8 +563,10 @@ class ModelDatasetValue(ModelGenericValue):
 
 
 class ModelSpecificValue(ModelGenericValue):
-    field = models.ForeignKey(ModelSpecificField, related_name='values')
-    value = models.TextField()
+    field = models.ForeignKey(ModelSpecificField,
+                              verbose_name=_('Field'),
+                              related_name='values')
+    value = models.TextField(_('Value'))
 
     class Meta:
         verbose_name = _('Model specific value')
@@ -472,8 +578,10 @@ class ModelSpecificValue(ModelGenericValue):
 
 
 class ModelGlobalValue(ModelGenericValue):
-    field = models.ForeignKey(ModelGlobalField, related_name='values')
-    value = models.TextField()
+    value = models.TextField(_('Value'))
+    field = models.ForeignKey(ModelGlobalField,
+                              verbose_name=_('Field'),
+                              related_name='values')
 
     class Meta:
         verbose_name = _('Model global value')
@@ -485,8 +593,12 @@ class ModelGlobalValue(ModelGenericValue):
 
 
 class ModelGlobalDatasetValue(ModelGenericValue):
-    field = models.ForeignKey(ModelGlobalDatasetField, related_name='values')
-    value = models.ForeignKey(DatasetValue, related_name='model_global_values')
+    field = models.ForeignKey(ModelGlobalDatasetField,
+                              verbose_name=_('Field'),
+                              related_name='values')
+    value = models.ForeignKey(DatasetValue,
+                              verbose_name=_('Value'),
+                              related_name='model_global_values')
 
     class Meta:
         verbose_name = _('Model global dataset value')
@@ -498,8 +610,12 @@ class ModelGlobalDatasetValue(ModelGenericValue):
 
 
 class ModelModelValue(ModelGenericValue):
-    field = models.ForeignKey(ModelModelField, related_name='values')
-    value = models.ForeignKey(Object, related_name='value_of')
+    field = models.ForeignKey(ModelModelField,
+                              verbose_name=_('Field'),
+                              related_name='values')
+    value = models.ForeignKey(Object,
+                              verbose_name=_('Value'),
+                              related_name='value_of')
 
     class Meta:
         verbose_name = _('Model to-model value')
