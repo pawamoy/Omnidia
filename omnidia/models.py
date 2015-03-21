@@ -1,7 +1,9 @@
 import hashlib
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from omnidia.decorators import autoconnect
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+from core.settings import MEDIA_ROOT
 from omnidia.utils import hashfile
 # TODO: set model methods
 # FIXME: all max_length=30 to 255 ?
@@ -19,7 +21,7 @@ class DataType(models.Model):
         date
         datetime
         time
-        interger
+        integer
         float
         binary
 
@@ -49,6 +51,11 @@ class DataType(models.Model):
 
     @staticmethod
     def get_types():
+        """Return the available data types.
+
+        :return: list of tuple (str, str), data types
+        """
+
         return DataType.DATATYPE_CHOICES
 
 
@@ -73,19 +80,43 @@ class Dataset(models.Model):
         return 'Dataset(%r, %r)' % (self.name, self.datatype)
 
     @staticmethod
-    def new(**kwargs):
-        return Dataset.objects.create(**kwargs)
+    def new(name, datatype):
+        """Create a new Dataset instance, and return it.
+
+        :param name: str, the dataset name
+        :param datatype: :class:`DataType`, the data type of the dataset
+        :return: :class:`Dataset`, model instance
+        """
+
+        return Dataset.objects.create(name=name, datatype=datatype)
 
     def add(self, value):
+        """Add a value into a Dataset instance.
+
+        :param value: str, the value to add
+        """
+
         DatasetValue.objects.create(dataset=self, value=value)
 
     def get(self, value):
+        """Try to return the DatasetValue instance with specified value.
+
+        :param value: str, the value you are searching for
+        :return: :class:`DatasetValue`, model instance
+        """
+
         try:
             return DatasetValue.objects.get(dataset=self, value=value)
         except DatasetValue.DoesNotExist:
             return None
 
     def remove(self, value):
+        """Try to remove the dataset value with specified value.
+
+        :param value: str, the value to remove from the dataset
+        :return: bool, True if removed correctly, else False
+        """
+
         dv = self.get(value)
         return True if dv and dv.delete() else False
 
@@ -134,10 +165,15 @@ class FileType(models.Model):
 
     @staticmethod
     def new(name):
+        """Create a new FileType instance, and return it.
+
+        :param name: str, the name of the file type
+        :return: :class:`Dataset`, model instance
+        """
+
         return FileType.objects.create(name=name)
 
 
-@autoconnect
 class File(models.Model):
     """The File model represents file that are tracked by Omnidia.
 
@@ -146,9 +182,11 @@ class File(models.Model):
     Omnidia, by comparing their respective hash.
     """
 
-    name = models.CharField(_('Filename'), max_length=255)
-    # FIXME: FileField or FilePathField ?
-    file = models.FileField(_('File location'))
+    name = models.CharField(
+        _('Filename'), max_length=255,
+        help_text=_('The new name to use for searching in the database. '
+                    'Leave empty to use the current name.'))
+    file = models.FileField(_('File location'), upload_to='%Y/%m/%d')
     hash = models.CharField(_('SHA256 hash'), max_length=256)
     type = models.ForeignKey(FileType,
                              verbose_name=_('File type'),
@@ -165,13 +203,26 @@ class File(models.Model):
         return 'File(%r, %r, %r, %r)' % (self.name, self.file,
                                          self.type, self.hash)
 
-    def pre_save(self):
-        if self._old_file != self.file:
-            self.refresh_hash()
-        self._old_file = self.file
+    @staticmethod
+    def get(path):
+        """Try to return a File instance based on given path.
+
+        :param path: str, the absolute path of the file
+        :return: :class:`File`, model instance or None
+        """
+        try:
+            return File.objects.get(file=path)
+        except File.DoesNotExist:
+            return None
 
     def refresh_hash(self):
-        self.hash = hashfile(open(self.file.path, 'rb'), hashlib.sha256())
+        """Recompute the hash of the file.
+
+        :return: str, the refreshed hash
+        """
+        with self.file.open('rb') as f:
+            self.hash = hashfile(f, hashlib.sha256())
+        return self.hash
 
 
 ###############################################################################
@@ -406,7 +457,7 @@ class Object(models.Model):
     name = models.CharField(_('Name'), max_length=255)
     model = models.ForeignKey(Model,
                               verbose_name=_('Model'),
-                              related_name='objects')
+                              related_name='object_set')
 
     class Meta:
         verbose_name = _('Object')
@@ -476,7 +527,7 @@ class ObjectFile(models.Model):
                                related_name='files')
     file = models.ForeignKey(File,
                              verbose_name=_('File'),
-                             related_name='objects')
+                             related_name='object_set')
 
     class Meta:
         verbose_name = _('Object file')
@@ -736,3 +787,34 @@ class ModelModelValue(ModelGenericValue):
     def __repr__(self):
         return 'ModelModelValue(%r, %r, %r)' % (
             self.object, self.field, self.value)
+
+
+###############################################################################
+# EVENT HANDLER
+
+class OmnidiaEventHandler(FileSystemEventHandler):
+    """Override the FileSystemEventHandler class from watchdog.
+    The only event handler we override is the on_modified handler, used to
+    recompute the hash of the file when it has been modified.
+    """
+
+    def on_modified(self, event):
+        """Event handler for modified files.
+
+        :param event: the event object representing the file system event
+        :type event: :class:`FileSystemEvent`
+        """
+
+        if event.is_directory:
+            return
+        modified_file = File.get(event.src_path)
+        if not modified_file:
+            return
+        old_hash = modified_file.hash
+        new_hash = modified_file.refresh_hash()
+        if old_hash != new_hash:
+            modified_file.save()
+
+observer = Observer()
+observer.schedule(OmnidiaEventHandler(), path=MEDIA_ROOT, recursive=True)
+observer.start()
