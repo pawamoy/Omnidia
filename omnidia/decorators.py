@@ -13,7 +13,7 @@ def autoconnect(cls):
 
     def connect(signal, func):
         cls.func = staticmethod(func)
-        
+
         @wraps(func)
         def wrapper(sender, **kwargs):
             return func(kwargs.get('instance'))
