@@ -224,6 +224,8 @@ class File(models.Model):
             self.hash = hashfile(f, hashlib.sha256())
         return self.hash
 
+    # TODO: method to move, delete, rename, copy, archive, download, read, open
+
 
 ###############################################################################
 # OMNIDIA FILE FIELDS
