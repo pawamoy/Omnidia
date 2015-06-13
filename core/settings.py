@@ -89,8 +89,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/media/pawantu/Data/Projets/omnidia/media'
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'static')
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'omnidia-media')
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'omnidia-static')
 ADMINS = (
     ('Timothée Mazzucotelli', 'timothee.mazzucotelli@gmail.com'),
 )
