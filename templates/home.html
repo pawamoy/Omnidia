@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block css %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static "css/home.css" %}" />
+{% endblock %}
+
+{% block content %}
+  <div class="container theme-showcase" role="main">
+    <ul class="breadcrumb">
+      <li><a href="#">Library</a></li>
+      <li class="active">Data</li>
+    </ul>
+    <div class="row well">
+      <div class="col-md-10 col-md-offset-1">
+        Some contents
+      </div>
+    </div>
+  </div>
+{% endblock %}

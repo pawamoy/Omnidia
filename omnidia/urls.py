@@ -1,5 +1,5 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
-urlpatterns = patterns('model.views',
-    url(r'^home/', 'home'),
+urlpatterns = patterns('omnidia.views',
+    url(r'^$', 'home'),
 )

@@ -1,12 +1,12 @@
 argh==0.26.1
-Django==1.8.2
+Django==1.8.3
 django-extensions==1.5.5
-django-modeltranslation==0.9.1
+django-modeltranslation==0.10
 django-rosetta==0.7.6
-django-suit==0.2.13
-microsofttranslator==0.5
+django-suit==0.2.14
+microsofttranslator==0.7
 pathtools==0.1.2
-polib==1.0.6
+polib==1.0.7
 PyYAML==3.11
 requests==2.7.0
 six==1.9.0

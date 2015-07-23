@@ -1,9 +1,6 @@
 import hashlib
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
-from core.settings import MEDIA_ROOT
 from omnidia.utils import hashfile
 # TODO: set model methods
 # FIXME: all max_length=30 to 255 ?
@@ -215,14 +212,13 @@ class File(models.Model):
         except File.DoesNotExist:
             return None
 
-    def refresh_hash(self):
+    def compute_hash(self):
         """Recompute the hash of the file.
 
         :return: str, the refreshed hash
         """
         with self.file.open('rb') as f:
-            self.hash = hashfile(f, hashlib.sha256())
-        return self.hash
+            return hashfile(f, hashlib.sha256())
 
     # TODO: method to move, delete, rename, copy, archive, download, read, open
 
@@ -789,34 +785,3 @@ class ModelModelValue(ModelGenericValue):
     def __repr__(self):
         return 'ModelModelValue(%r, %r, %r)' % (
             self.object, self.field, self.value)
-
-
-###############################################################################
-# EVENT HANDLER
-
-class OmnidiaEventHandler(FileSystemEventHandler):
-    """Override the FileSystemEventHandler class from watchdog.
-    The only event handler we override is the on_modified handler, used to
-    recompute the hash of the file when it has been modified.
-    """
-
-    def on_modified(self, event):
-        """Event handler for modified files.
-
-        :param event: the event object representing the file system event
-        :type event: :class:`FileSystemEvent`
-        """
-
-        if event.is_directory:
-            return
-        modified_file = File.get(event.src_path)
-        if not modified_file:
-            return
-        old_hash = modified_file.hash
-        new_hash = modified_file.refresh_hash()
-        if old_hash != new_hash:
-            modified_file.save()
-
-observer = Observer()
-observer.schedule(OmnidiaEventHandler(), path=MEDIA_ROOT, recursive=True)
-observer.start()
