@@ -1,6 +1,10 @@
 import hashlib
+import shutil
+import os
 from django.db import models
+from django.template.defaultfilters import slugify
 from django.utils.translation import ugettext_lazy as _
+from core.settings import MEDIA_ROOT
 from omnidia.utils import hashfile
 # TODO: set model methods
 # FIXME: all max_length=30 to 255 ?
@@ -190,6 +194,7 @@ class File(models.Model):
                              related_name='files')
 
     class Meta:
+        # FIXME: with two identical files: same hash, what to do?
         verbose_name = _('File')
         verbose_name_plural = _('Files')
 
@@ -199,6 +204,14 @@ class File(models.Model):
     def __repr__(self):
         return 'File(%r, %r, %r, %r)' % (self.name, self.file,
                                          self.type, self.hash)
+
+    @staticmethod
+    def add(file_path):
+        # create the object
+        # give it a type based on ext or mimetype
+        # compute its hash
+        # give it a name based on its path
+        pass
 
     @staticmethod
     def get(path):
@@ -212,6 +225,20 @@ class File(models.Model):
         except File.DoesNotExist:
             return None
 
+    get_by_path = get
+
+    @staticmethod
+    def get_by_hash(h):
+        """Try to return a File instance based on given hash.
+
+        :param hash: str, the SHA256 hash of the file
+        :return: :class:`File`, model instance or None
+        """
+        try:
+            return File.objects.get(hash=h)
+        except File.DoesNotExist:
+            return None
+
     def compute_hash(self):
         """Recompute the hash of the file.
 
@@ -220,7 +247,59 @@ class File(models.Model):
         with self.file.open('rb') as f:
             return hashfile(f, hashlib.sha256())
 
-    # TODO: method to move, delete, rename, copy, archive, download, read, open
+    # def move(self, new_path):
+    #     if os.path.exists(os.path.dirname(new_path)):
+
+    @staticmethod
+    def get_path_relative_to_media_root(path):
+        path = path.split(MEDIA_ROOT)[1]
+        if path.startswith(os.sep):
+            path = path[1:]
+        return path
+
+    def set_path(self, path):
+        if os.path.isabs(path):
+            path = File.get_path_relative_to_media_root(path)
+        self.file.name = path
+        self.save()
+
+    def move(self, new_path):
+        # Here we assume new_path is relative and inside MEDIA_ROOT,
+        # because each file going out of MEDIA_ROOT is not watched anymore,
+        # and we don't want that. We have to explicitly COPY the file somewhere
+        # else and then DELETE it from the database and the MEDIA_ROOT.
+        shutil.move(os.path.join(MEDIA_ROOT, self.file),
+                    os.path.join(MEDIA_ROOT, new_path))
+        self.set_path(new_path)
+
+    def get_filename(self):
+        return self.file.name.split(os.sep)[-1]
+
+    def get_relative_path(self):
+        return File.get_path_relative_to_media_root(self.file.path)
+
+    def get_absolute_path(self):
+        return self.file.path
+
+    def rename_file(self, new_name):
+        self.move(os.path.join(os.path.dirname(self.get_relative_path()),
+                               new_name))
+
+    def rename_object(self, new_name):
+        self.name = new_name
+        self.save()
+
+    def apply_filename_from_object_name(self):
+        self.rename_file(slugify(self.name))
+
+    def apply_object_name_from_filename(self):
+        self.rename_object(self.get_filename())
+
+    # def remove(self, from_database=False):
+
+
+
+    # TODO: method to delete, copy, archive, download, read, open
 
 
 ###############################################################################
