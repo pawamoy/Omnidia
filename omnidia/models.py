@@ -9,11 +9,17 @@ from omnidia.utils import hashfile
 # TODO: set model methods
 # FIXME: all max_length=30 to 255 ?
 
+# NOTE: these models could be used in a django app called django-dcarve,
+# django-carved or django-dynamic-carve for
+# Django Dynamic Class Attribute and Relational Value Entity.
+# The letters are mixed up, it should be
+# Django Dynamic Entity Attribute Value with Classes and Relations
+# but it would give django-deavcr which is unpronounceable.
 
 ###############################################################################
 # OMNIDIA GENERAL
 
-class DataType(models.Model):
+class DataType(object):
     """The type of data stored in a particular field.
 
     The available types are hardcoded:
@@ -29,35 +35,23 @@ class DataType(models.Model):
     We could also add types like hexadecimal, octal, ...
     """
 
-    DATATYPE_CHOICES = (
-        ['text', _('Text')],
-        ['date', _('Date')],
-        ['datetime', _('Datetime')],
-        ['time', _('Time')],
-        ['integer', _('Integer')],
-        ['float', _('Float')],
-        ['binary', _('Binary')],
+    TYPE_TEXT = 0
+    TYPE_DATE = 1
+    TYPE_DATETIME = 2
+    TYPE_TIME = 3
+    TYPE_INTEGER = 4
+    TYPE_FLOAT = 5
+    TYPE_BINARY = 6
+
+    TYPES = (
+        [TYPE_TEXT, _('Text')],
+        [TYPE_DATE, _('Date')],
+        [TYPE_DATETIME, _('Datetime')],
+        [TYPE_TIME, _('Time')],
+        [TYPE_INTEGER, _('Integer')],
+        [TYPE_FLOAT, _('Float')],
+        [TYPE_BINARY, _('Binary')],
     )
-    name = models.CharField(_('Name'), max_length=30, choices=DATATYPE_CHOICES)
-
-    class Meta:
-        verbose_name = _('Data type')
-        verbose_name_plural = _('Data types')
-
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return 'DataType(%r)' % self.name
-
-    @staticmethod
-    def get_types():
-        """Return the available data types.
-
-        :return: list of tuple (str, str), data types
-        """
-
-        return DataType.DATATYPE_CHOICES
 
 
 class Dataset(models.Model):
@@ -66,9 +60,8 @@ class Dataset(models.Model):
     """
 
     name = models.CharField(_('Name'), max_length=30)
-    datatype = models.ForeignKey(DataType,
-                                 verbose_name=_('Data type'),
-                                 related_name='datasets')
+    datatype = models.PositiveSmallIntegerField(
+        choices=DataType.TYPES, verbose_name=_('Data type'))
 
     class Meta:
         verbose_name = _('Dataset')
@@ -85,7 +78,8 @@ class Dataset(models.Model):
         """Create a new Dataset instance, and return it.
 
         :param name: str, the dataset name
-        :param datatype: :class:`DataType`, the data type of the dataset
+        :param datatype: integer, see :class:`DataType`,
+            the data type of the dataset
         :return: :class:`Dataset`, model instance
         """
 
@@ -359,9 +353,8 @@ class FileSpecificField(FileGenericField):
     filetype = models.ForeignKey(FileType,
                                  verbose_name=_('File type'),
                                  related_name='specific_fields')
-    datatype = models.ForeignKey(DataType,
-                                 verbose_name=_('Data type'),
-                                 related_name='file_specific_fields')
+    datatype = models.PositiveSmallIntegerField(
+        choices=DataType.TYPES, verbose_name=_('Data type'))
 
     class Meta:
         verbose_name = _('File specific field')
@@ -378,9 +371,8 @@ class FileGlobalField(FileGenericField):
     """A field to store a value of a certain type for all file types.
     """
 
-    datatype = models.ForeignKey(DataType,
-                                 verbose_name=_('Data type'),
-                                 related_name='file_global_fields')
+    datatype = models.PositiveSmallIntegerField(
+        choices=DataType.TYPES, verbose_name=_('Data type'))
 
     class Meta:
         verbose_name = _('File global field')
@@ -675,9 +667,8 @@ class ModelSpecificField(ModelGenericField):
     model = models.ForeignKey(Model,
                               verbose_name=_('Model'),
                               related_name='specific_fields')
-    datatype = models.ForeignKey(DataType,
-                                 verbose_name=_('Data type'),
-                                 related_name='model_specific_fields')
+    datatype = models.PositiveSmallIntegerField(
+        choices=DataType.TYPES, verbose_name=_('Data type'))
 
     class Meta:
         verbose_name = _('Model specific field')
@@ -693,9 +684,8 @@ class ModelGlobalField(ModelGenericField):
     """A field to store a value of a certain type for all models.
     """
 
-    datatype = models.ForeignKey(DataType,
-                                 verbose_name=_('Data type'),
-                                 related_name='model_global_fields')
+    datatype = models.PositiveSmallIntegerField(
+        choices=DataType.TYPES, verbose_name=_('Data type'))
 
     class Meta:
         verbose_name = _('Model global field')
