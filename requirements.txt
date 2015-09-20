@@ -1,5 +1,5 @@
 argh==0.26.1
-bulbs==0.3.29.post20150914
+bulbs==0.3.29.post20140417
 Django==1.8.3
 django-extensions==1.5.5
 django-modeltranslation==0.10
