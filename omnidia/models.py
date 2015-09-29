@@ -267,9 +267,6 @@ class File(models.Model):
         with self.file.open('rb') as f:
             return hashfile(f, hashlib.sha256())
 
-    # def move(self, new_path):
-    #     if os.path.exists(os.path.dirname(new_path)):
-
     @staticmethod
     def get_path_relative_to_media_root(path):
         path = path.split(MEDIA_ROOT)[1]
@@ -316,8 +313,6 @@ class File(models.Model):
         self.rename_object(self.get_filename())
 
     # def remove(self, from_database=False):
-
-
 
     # TODO: method to delete, copy, archive, download, read, open
 

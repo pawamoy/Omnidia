@@ -20,6 +20,7 @@ class OmnidiaEventHandler(FileSystemEventHandler):
             return
         modified_file = File.get(event.src_path)
         if modified_file:
+            print('watcher: edited file "%s"' % modified_file)
             # Case 1: file has been modified
             old_hash = modified_file.hash
             new_hash = modified_file.compute_hash()
@@ -32,8 +33,10 @@ class OmnidiaEventHandler(FileSystemEventHandler):
             renamed_file = File.get_by_hash(file_hash)
             # Case 2: file has been renamed
             if renamed_file:
+                print('watcher: renamed file "%s"' % renamed_file)
                 renamed_file.set_path(event.src_path)
             # Case 3: file has been added
             else:
+                print('watcher: added file "%s"' % event.src_path)
                 File.add(event.src_path)
 
