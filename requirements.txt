@@ -1,6 +1,9 @@
+Django==1.8.4
+PyYAML==3.11
 argh==0.26.1
-bulbs==0.3.29.post20140417
-Django==1.8.3
+argparse==1.4.0
+## FIXME: could not find svn URL in dependency_links for this package:
+bulbs==0.3.29-20140417
 django-extensions==1.5.5
 django-modeltranslation==0.10
 django-rosetta==0.7.6
@@ -11,7 +14,6 @@ omnijson==0.1.2
 pathtools==0.1.2
 polib==1.0.7
 python-dateutil==2.4.2
-PyYAML==3.11
 requests==2.7.0
 six==1.9.0
 watchdog==0.8.3
