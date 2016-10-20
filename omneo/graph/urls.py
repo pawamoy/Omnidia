@@ -8,3 +8,6 @@ urlpatterns = [
     url(r'^add_person/(?P<person>\w+)/$', views.add_person, name='add_person'),
     url(r'^search_persons/(?P<name>\w+)/$', views.search_persons, name='search_persons')
 ]
+
+from .factory import build_file_types
+build_file_types()

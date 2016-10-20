@@ -3,8 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from py2neo.ogm import GraphObject, Property, RelatedFrom, RelatedTo
 
 
-###############################################################################
-# OMNIDIA GENERAL
+# General
 
 class DataType(GraphObject):
     """The type of data stored in a particular field.
@@ -56,46 +55,67 @@ class DatasetValue(GraphObject):
     dataset = RelatedTo('Dataset')
 
 
-###############################################################################
-# OMNIDIA FILES
+# Files
 
 class FileType(GraphObject):
     __primarykey__ = 'id'
 
     name = Property()
-    files = RelatedFrom('File', 'HAS_TYPE')
 
 
-class File(GraphObject):
+class AbstractFile(GraphObject):
     __primarykey__ = 'id'
 
     name = Property()
     path = Property()
     hash = Property()
-    type = RelatedTo('FileType')
 
 
-# OMNIDIA FILE FIELDS ------------------------------------
-
-class _Field(GraphObject):
+class FileField(GraphObject):
     __primarykey__ = 'id'
 
     name = Property()
     minimum = Property()
     maximum = Property()
-    filetype = RelatedTo('FileType')
+    file_type = RelatedTo('FileType')
 
 
-class Field(_Field):
-    datatype = RelatedTo('DataType')
+class FileDataField(FileField):
+    data_type = RelatedTo('DataType')
 
 
-class DatasetField(_Field):
+class FileDatasetField(FileField):
     dataset = RelatedTo('Dataset')
 
 
-###############################################################################
-# OMNIDIA MODELS
+# Objects
 
-class Model(GraphObject):
+class ObjectType(GraphObject):
     __primarykey__ = 'id'
+
+    name = Property()
+
+
+class AbstractObject(GraphObject):
+    __primarykey__ = 'id'
+
+
+class ObjectField(GraphObject):
+    __primarykey__ = 'id'
+
+    name = Property()
+    minimum = Property()
+    maximum = Property()
+    object_type = RelatedTo('ObjectType')
+
+
+class ObjectDataField(ObjectField):
+    data_type = RelatedTo('DataType')
+
+
+class ObjectDatasetField(ObjectField):
+    dataset = RelatedTo('Dataset')
+
+
+class ObjectToObjectField(ObjectField):
+    to_object = RelatedTo('ObjectType')
