@@ -1,3 +1,25 @@
-{% for person in persons %}
-  <p>{{ person }}</p>
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+<h1>Add a node</h1>
+<form method="get" action="{% url 'add' %}">
+  Labels: <input name="labels" title="Labels" type="text" /><br>
+  Property/Value 1: <input name="property1" title="Property 1" type="text" />
+  <input name="value1" title="Value 1" type="text" /><br>
+  Property/Value 2: <input name="property2" title="Property 2" type="text" />
+  <input name="value2" title="Value 2" type="text" /><br>
+  Property/Value 3: <input name="property3" title="Property 3" type="text" />
+  <input name="value3" title="Value 3" type="text" /><br>
+  <input type="submit" value="Go">
+</form>
+
+{% for node in nodes %}
+  <div class="node">
+    Labels:
+    <ul>{% for label in node.labels %}<li>{{ label }}</li>{% endfor %}</ul>
+    Properties:
+    <ul>{% for property, value in node.properties.items %}<li>{{ property }}: {{ value }}</li>{% endfor %}</ul>
+    <a href="{% url 'delete' node.id %}">Delete node</a>
+  </div>
 {% endfor %}

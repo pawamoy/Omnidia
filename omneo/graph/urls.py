@@ -2,12 +2,9 @@ from django.conf.urls import url
 
 from . import views
 
-urlpatterns = [
-    url(r'^$', views.persons, name='persons'),
-    url(r'^persons/$', views.persons, name='persons'),
-    url(r'^add_person/(?P<person>\w+)/$', views.add_person, name='add_person'),
-    url(r'^search_persons/(?P<name>\w+)/$', views.search_persons, name='search_persons')
-]
 
-from .factory import build_file_types
-build_file_types()
+urlpatterns = [
+    url(r'^$', views.home, name='home'),
+    url(r'^add/$', views.add, name='add'),
+    url(r'^delete/(?P<id>\d+)/$', views.delete, name='delete'),
+]
