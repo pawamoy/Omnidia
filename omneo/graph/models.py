@@ -7,7 +7,7 @@ class Dataset(GraphObject):
 
 
 class DatasetValue(GraphObject):
-    value = Property()
+    name = Property()
     dataset = RelatedTo('Dataset')
 
 

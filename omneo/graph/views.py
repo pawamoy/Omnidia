@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from py2neo import Node
 
+from omneo.graph.models import Dataset, DatasetValue
 from . import g, ns
 
 
@@ -44,13 +45,6 @@ def add(request):
     return redirect(reverse('home'))
 
 
-def delete(request, id):
-    id = int(id)
-    node = g.node(id)
-    g.delete(node)
-    return redirect(reverse('home'))
-
-
 def search_persons(request, name):
     case_insensitive = True
 
@@ -64,3 +58,40 @@ def search_persons(request, name):
     persons_list = list(matching_persons)
 
     return render(request, 'home.html', {'persons': persons_list})
+
+
+def datasets(request):
+    return home(request)
+
+
+def add_dataset(request):
+    dataset = Dataset()
+    params = request.GET
+    dataset.name = params.get('name')
+
+    value1 = params.get('value1', None)
+    value2 = params.get('value2', None)
+    value3 = params.get('value3', None)
+
+    for value in (value1, value2, value3):
+        if value:
+            dv = DatasetValue()
+            dv.name = value
+            dataset.values.add(dv)
+
+    g.push(dataset)
+    return redirect(reverse('home'))
+
+
+class MultipleNodeError(BaseException):
+    pass
+
+
+def delete_dataset(request, name):
+    nodes = list(ns.select('Dataset', name=name))
+    if len(nodes) > 1:
+        raise MultipleNodeError
+    if nodes:
+        g.separate(nodes[0])
+        g.delete(nodes[0])
+    return redirect(reverse('home'))
