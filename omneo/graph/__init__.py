@@ -1,4 +1,3 @@
-from py2neo import Graph, NodeSelector
+from py2neo import Graph
 
-g = Graph(user='neo4j', password='admineo4j')
-ns = NodeSelector(g)
+g = Graph('http://neo4j:admineo4j@localhost:7474/db/data')

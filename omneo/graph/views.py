@@ -1,19 +1,18 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from py2neo import Node
+from py2neo import Node, Graph, Relationship
 
-from omneo.graph.models import Dataset, DatasetValue
-from . import g, ns
+from . import g
 
 
 def home(request):
-    selection = ns.select()
+    nodes = list(g.find('Dataset'))
     nodes_list = [
         {'id': id(node),
-         'labels': [l for l in node.labels()],
-         'properties': dict(node)}
-        for node in selection
+         'labels': node.labels,
+         'properties': dict(node.properties)}
+        for node in nodes
     ]
 
     return render(request, 'home.html', {'nodes': nodes_list})
@@ -53,7 +52,7 @@ def search_persons(request, name):
     if case_insensitive:
         re_contains_name = '(?i)' + re_contains_name
 
-    persons_nodes = ns.select('Person')
+    persons_nodes = g.find('Person')
     matching_persons = persons_nodes.where("_.name =~ '%s'" % re_contains_name)
     persons_list = list(matching_persons)
 
@@ -65,21 +64,24 @@ def datasets(request):
 
 
 def add_dataset(request):
-    dataset = Dataset()
+    dataset = Node('Dataset')
     params = request.GET
     dataset.name = params.get('name')
+    g.create(dataset)
 
     value1 = params.get('value1', None)
     value2 = params.get('value2', None)
     value3 = params.get('value3', None)
 
+    class ValueOf(Relationship):
+        pass
+
     for value in (value1, value2, value3):
         if value:
-            dv = DatasetValue()
+            dv = Node('DatasetValue')
             dv.name = value
-            dataset.values.add(dv)
-
-    g.push(dataset)
+            vo = ValueOf(dv, dataset)
+            g.create(vo)
     return redirect(reverse('home'))
 
 
@@ -88,10 +90,9 @@ class MultipleNodeError(BaseException):
 
 
 def delete_dataset(request, name):
-    nodes = list(ns.select('Dataset', name=name))
-    if len(nodes) > 1:
-        raise MultipleNodeError
-    if nodes:
-        g.separate(nodes[0])
-        g.delete(nodes[0])
+    node = g.find_one('Dataset', 'name', name)
+    if node:
+        for rel in g.match(start_node=node, bidirectional=True):
+            g.delete(rel)
+        g.delete(node)
     return redirect(reverse('home'))
