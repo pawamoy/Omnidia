@@ -1,0 +1,2 @@
+class MultipleNodeError(Exception):
+    pass

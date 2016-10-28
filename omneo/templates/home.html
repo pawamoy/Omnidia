@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
 <h1>Add a dataset</h1>
-<form method="get" action="{% url 'dataset_add' %}">
+<form method="get" action="{% url 'datasets:add' %}">
   Name: <input name="name" title="Name" type="text" /><br>
   Value 1: <input name="value1" title="Value 1" type="text" /><br>
   Value 2: <input name="value2" title="Value 2" type="text" /><br>
@@ -11,25 +11,17 @@
   <input type="submit" value="Go">
 </form>
 
-
-<h1>Add a node</h1>
-<form method="get" action="{% url 'add' %}">
-  Labels: <input name="labels" title="Labels" type="text" /><br>
-  Property/Value 1: <input name="property1" title="Property 1" type="text" />
-  <input name="value1" title="Value 1" type="text" /><br>
-  Property/Value 2: <input name="property2" title="Property 2" type="text" />
-  <input name="value2" title="Value 2" type="text" /><br>
-  Property/Value 3: <input name="property3" title="Property 3" type="text" />
-  <input name="value3" title="Value 3" type="text" /><br>
-  <input type="submit" value="Go">
-</form>
-
-{% for node in nodes %}
+{% for dataset in datasets %}
   <div class="node">
-    Labels:
-    <ul>{% for label in node.labels %}<li>{{ label }}</li>{% endfor %}</ul>
-    Properties:
-    <ul>{% for property, value in node.properties.items %}<li>{{ property }}: {{ value }}</li>{% endfor %}</ul>
-    <a href="{% url 'dataset_delete' node.properties.name %}">Delete node</a>
+    Name: {{ dataset.name }}<br>
+    Values:
+    <ul>
+      {% for value in dataset.values %}
+        <li>
+          {{ value }} {# <a href="{% url 'dataset_values:delete' %}">Delete value</a> #}
+        </li>
+      {% endfor %}
+    </ul>
+    <a href="{% url 'datasets:delete' dataset.name %}">Delete dataset</a>
   </div>
 {% endfor %}
