@@ -8,6 +8,12 @@ class Edge(object):
     def __init__(self, relationship):
         self.relationship = relationship
 
+    @classmethod
+    def create(cls, *args, **properties):
+        relationship = Relationship(*args, **properties)
+        g.create(relationship)
+        return cls(relationship)
+
     def start_node(self):
         return list(walk(self.relationship))[0]
 
@@ -17,16 +23,22 @@ class Edge(object):
     def delete(self):
         g.separate(self.relationship)
 
-    @classmethod
-    def create(cls, *args, **properties):
-        relationship = Relationship(*args, **properties)
-        g.create(relationship)
-        return cls(relationship)
-
 
 class Node(object):
     def __init__(self, node):
         self.node = node
+
+    @classmethod
+    def create(cls, *labels, **properties):
+        node = _Node(cls.__name__, *labels, **properties)
+        g.create(node)
+        return cls(node)
+
+    @classmethod
+    def all(cls, label=None):
+        if label is None:
+            label = cls.__name__
+        return (cls(node) for node in g.find(label))
 
     @classmethod
     def get(cls, name, limit=None):
@@ -37,24 +49,6 @@ class Node(object):
             raise MultipleNodeError
         return None
 
-    @classmethod
-    def create(cls, *labels, **properties):
-        node = _Node(cls.__name__, *labels, **properties)
-        g.create(node)
-        return cls(node)
-
-    def save(self):
-        g.push(self.node)
-
-    @classmethod
-    def all(cls, label=None):
-        if label is None:
-            label = cls.__name__
-        return (cls(node) for node in g.find(label))
-
-    def edges(self, rel_type=None, end_node=None, bidirectional=False, limit=None):
-        return [Edge(r) for r in g.match(self.node, rel_type, end_node, bidirectional, limit)]
-
     @property
     def labels(self):
         return [l for l in self.node.labels()]
@@ -63,14 +57,20 @@ class Node(object):
     def properties(self):
         return dict(self.node)
 
+    @property
+    def name(self):
+        return self.properties['name']
+
+    def save(self):
+        g.push(self.node)
+
+    def edges(self, rel_type=None, end_node=None, bidirectional=False, limit=None):
+        return [Edge(r) for r in g.match(self.node, rel_type, end_node, bidirectional, limit)]
+
     def delete(self):
         for edge in self.edges(bidirectional=True):
             edge.delete()
         g.delete(self.node)
-
-    @property
-    def name(self):
-        return self.properties['name']
 
 
 class Dataset(Node):
