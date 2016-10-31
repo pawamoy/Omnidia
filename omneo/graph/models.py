@@ -1,6 +1,6 @@
 from py2neo import Node as _Node, Relationship, walk
 
-from . import g
+from . import g, ns
 from .exceptions import MultipleNodeError
 
 
@@ -28,6 +28,9 @@ class Node(object):
     def __init__(self, node):
         self.node = node
 
+    def __eq__(self, other):
+        return self.name == other.name and self.node == other.node
+
     @classmethod
     def create(cls, *labels, **properties):
         node = _Node(cls.__name__, *labels, **properties)
@@ -41,13 +44,26 @@ class Node(object):
         return (cls(node) for node in g.find(label))
 
     @classmethod
-    def get(cls, name, limit=None):
-        nodes = list(g.find(cls.__name__, 'name', name, limit))
+    def filter(cls, *labels, **properties):
+        return [cls(n) for n in ns.select(cls.__name__, *labels, **properties)]
+
+    @classmethod
+    def get(cls, *labels, **properties):
+        nodes = cls.filter(*labels, **properties)
         if nodes:
             if len(nodes) == 1:
-                return cls(nodes[0])
-            raise MultipleNodeError
+                return nodes[0]
+            raise MultipleNodeError('%s.get returned %d nodes matching "%s"' % (
+                cls.__name__, len(nodes), properties))
         return None
+
+    @classmethod
+    def get_or_create(cls, *labels, **properties):
+        node = cls.get(*labels, **properties)
+        if node:
+            return node
+        node = cls.create(*labels, **properties)
+        return node
 
     @property
     def labels(self):
@@ -77,14 +93,25 @@ class Dataset(Node):
     @property
     def values(self):
         return [
-            dict(list(walk(edge.relationship))[0]).get('name')
+            DatasetValue(list(walk(edge.relationship))[0])
             for edge in self.edges('VALUE_OF', bidirectional=True)
         ]
 
+    @property
+    def text_values(self):
+        return [v.name for v in self.values]
+
     def add_value(self, value):
-        dv = DatasetValue.create(name=value)
-        vo = Edge.create(dv.node, 'VALUE_OF', self.node)
-        return vo, dv
+        value = DatasetValue.get_or_create(name=value)
+        edge = Edge.create(value.node, 'VALUE_OF', self.node)
+        return edge, value
+
+    def separate_value(self, value):
+        if isinstance(value, str):
+            value = DatasetValue.get(value)
+        edges = [Edge(r) for r in g.match(self.node, 'VALUE_OF', value.node, bidirectional=True)]
+        for edge in edges:
+            edge.delete()
 
 
 class DatasetValue(Node):

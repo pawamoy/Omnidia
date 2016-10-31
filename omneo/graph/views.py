@@ -1,11 +1,7 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import Dataset
-
-
-def home(request):
-    return datasets(request)
+from .models import Dataset, DatasetValue
 
 
 # def search_persons(request, name):
@@ -27,7 +23,7 @@ def datasets(request):
     dataset_list = [
         {
             'name': dataset.name,
-            'values': dataset.values
+            'values': dataset.text_values
         }
         for dataset in Dataset.all()
     ]
@@ -35,23 +31,43 @@ def datasets(request):
     return render(request, 'home.html', {'datasets': dataset_list})
 
 
-def add_dataset(request):
+def dataset_add(request):
     params = request.GET
-    dataset = Dataset.create(name=params.get('name'))
-
-    value1 = params.get('value1', None)
-    value2 = params.get('value2', None)
-    value3 = params.get('value3', None)
-
-    for value in (value1, value2, value3):
-        if value:
-            dataset.add_value(value)
+    Dataset.create(name=params.get('name'))
 
     return redirect(reverse('datasets:main'))
 
 
-def delete_dataset(request, name):
-    dataset = Dataset.get(name)
+def dataset_details(request, dataset):
+    pass
+
+
+def dataset_delete(request, dataset):
+    dataset = Dataset.get(name=dataset)
     if dataset:
         dataset.delete()
+    return redirect(reverse('datasets:main'))
+
+
+def dataset_values(request, dataset):
+    pass
+
+
+def value_add(request, dataset):
+    dataset = Dataset.get(name=dataset)
+    if dataset:
+        value = request.GET.get('name')
+        dataset.add_value(value)
+    return redirect(reverse('datasets:main'))
+
+
+def value_details(request, dataset, value):
+    pass
+
+
+def value_delete(request, dataset, value):
+    dataset = Dataset.get(name=dataset)
+    value = DatasetValue.get(name=value)
+    if dataset and value:
+        dataset.separate_value(value)
     return redirect(reverse('datasets:main'))

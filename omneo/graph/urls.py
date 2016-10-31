@@ -4,20 +4,21 @@ from . import views
 
 
 urlpatterns = [
-    url(r'^$', views.home, name='home'),
+    url(r'^$', views.datasets, name='home'),
     url(r'^datasets/', include([
         url(r'^$', views.datasets, name='main'),
-        url(r'^(?P<name>.+)/', include([
-            url(r'^$', views.detail_dataset, name='details'),
+        url(r'^add/$', views.dataset_add, name='add'),
+        url(r'^(?P<dataset>[\w ]+)/', include([
+            url(r'^$', views.dataset_details, name='details'),
+            url(r'^delete/$', views.dataset_delete, name='delete'),
             url(r'^values/', include([
                 url(r'^$', views.dataset_values, name='main'),
-                url(r'^(?P<name>.+)/', include([
-                    url(r'^$', views.detail_dataset_value, name='details'),
-                    url(r'^add/$')
+                url(r'^add/$', views.value_add, name='add'),
+                url(r'^(?P<value>[\w ]+)/', include([
+                    url(r'^$', views.value_details, name='details'),
+                    url(r'^delete/$', views.value_delete, name='delete'),
                 ])),
             ], namespace='values'))
         ])),
-        url(r'^add/$', views.add_dataset, name='add'),
-        url(r'^delete/(?P<name>.+)/$', views.delete_dataset, name='delete'),
     ], namespace='datasets')),
 ]
