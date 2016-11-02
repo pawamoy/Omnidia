@@ -1,25 +1,5 @@
-/* TODO: resort CSS properties in several files (header, body, footer) */
-
-/* CSS base
------------------------------------------*/
-
-html {
-  height: 100%;
-}
-
-body {
-  background: url(../img/universe-backgrounds-81.jpg) no-repeat fixed;
-  background-size: 100% 100%;
-  /*background-color: rgb(247, 246, 255);*/
-}
-
-#content {
-  /* Move down content because we have a fixed navbar that is 50px tall */
-  padding-top: 60px;
-}
-
-
-
-.ion-large {
-  font-size: 24px;
+.node {
+  border: 1px solid black;
+  padding: 5px;
+  margin: 5px;
 }
