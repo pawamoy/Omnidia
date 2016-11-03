@@ -27,7 +27,7 @@ class OmnidiaEventHandler(FileSystemEventHandler):
                 if os.path.exists(file.path):
                     print('  not deleted (file exists, assumed rewriting)')
                 else:
-                    file.delete()
+                    file.delete(from_disk=False)
                     print('  deleted')
             else:
                 print('  not deleted (node does not exist in db)')

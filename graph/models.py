@@ -46,7 +46,8 @@ class Node(object):
 
     @classmethod
     def all(cls, *labels):
-        return cls.filter(*labels)
+        selection = ns.select(cls.__name__, *labels).order_by('_.name')
+        return [cls(n) for n in selection]
 
     @classmethod
     def filter(cls, *labels, **properties):

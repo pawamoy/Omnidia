@@ -14,7 +14,7 @@ urlpatterns = [
             url(r'^values/', include([
                 url(r'^$', views.dataset_values, name='main'),
                 url(r'^add/$', views.value_add, name='add'),
-                url(r'^(?P<value>[\w? ]+)/', include([
+                url(r'^(?P<value>[^/]+)/', include([
                     url(r'^$', views.value_details, name='details'),
                     url(r'^delete/$', views.value_delete, name='delete'),
                 ])),
