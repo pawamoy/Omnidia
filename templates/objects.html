@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+  {{ block.super }}
+  <script src="{% static 'js/object_properties.js' %}"></script>
+{% endblock js %}
+
+{% block content %}
+
+  <div class="row">
+
+    <div class="col-md-12 col-lg-12">
+
+      <h3>Add an object</h3>
+      <form id="add_object" class="form-inline" method="post" action="{% url 'objects:add' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <input name="name" type="text" class="form-control" id="object_name" placeholder="Name">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
+        <a id="add_property" class="btn btn-warning"><i class="glyphicon glyphicon-plus"></i></a>
+      </form>
+
+      <br>
+
+      {% for obj in objects %}
+        <div class="node well">
+          <h2>{{ obj.name }}</h2>
+          <a href="{% url 'objects:delete' obj.name %}">Delete object</a>
+        </div>
+      {% endfor objects %}
+
+    </div>
+
+  </div>
+
+{% endblock content %}

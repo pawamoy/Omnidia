@@ -192,6 +192,11 @@ class File(Node):
         matching_files = selection.where("_.path =~ '%s'" % re_startswith_path)
         return (File(n) for n in matching_files)
 
+    def delete(self, from_disk=True):
+        super().delete()
+        if from_disk:
+            os.remove(self.path)
+
     def get_file_hash(self):
         if os.path.exists(self.path):
             with open(self.path, 'rb') as f:

@@ -2,31 +2,47 @@
 {% load static %}
 
 {% block content %}
+
   <div class="row">
+
     <div class="col-md-12 col-lg-12">
+
       <h3>Add a dataset</h3>
-      <form method="get" action="{% url 'datasets:add' %}">
-        Name: <input name="name" title="Name" type="text" />
-        <input type="submit" value="Go">
+      <form class="form-inline" method="get" action="{% url 'datasets:add' %}">
+        <div class="form-group">
+          <input name="name" type="text" class="form-control" id="dataset_name" placeholder="Name">
+        </div>
+        <button type="submit" class="btn btn-default">Submit</button>
       </form>
+
+      <br>
 
       {% for dataset in datasets %}
         <div class="node well">
+
           <h2>{{ dataset.name }}</h2>
-          <ul>
+
+          <ul class="list-unstyled">
             {% for value in dataset.values %}
               <li>
-                {{ value }} <a href="{% url 'datasets:values:delete' dataset.name value %}">Delete value</a>
+                {{ value }} <a href="{% url 'datasets:values:delete' dataset.name value %}"><i class="glyphicon glyphicon-remove"></i></a>
               </li>
-            {% endfor %}
+            {% endfor values %}
           </ul>
-          <form method="get" action="{% url 'datasets:values:add' dataset.name %}">
-            Add a value: <input name="name" title="Name" type="text" />
-            <input type="submit" value="Go">
+
+          <form class="form-inline" method="get" action="{% url 'datasets:values:add' dataset.name %}">
+            <div class="form-group">
+              <input name="name" type="text" class="form-control" id="value_name" placeholder="Add a value">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+            <a class="btn btn-danger" href="{% url 'datasets:delete' dataset.name %}">Delete dataset</a>
           </form>
-          <a href="{% url 'datasets:delete' dataset.name %}">Delete dataset</a>
+
         </div>
-      {% endfor %}
+      {% endfor datasets %}
+
     </div>
+
   </div>
-{% endblock %}
+
+{% endblock content %}

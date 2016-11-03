@@ -16,6 +16,7 @@
       <ul class="nav navbar-nav">
         <li><a href="{% url 'datasets:main' %}">Datasets</a></li>
         <li><a href="{% url 'files:main' %}">Files</a></li>
+        <li><a href="{% url 'objects:main' %}">Objects</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if user.is_authenticated %}

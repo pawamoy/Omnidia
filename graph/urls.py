@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^datasets/', include([
         url(r'^$', views.datasets, name='main'),
         url(r'^add/$', views.dataset_add, name='add'),
-        url(r'^(?P<dataset>[\w ]+)/', include([
+        url(r'^(?P<dataset>[\w? ]+)/', include([
             url(r'^$', views.dataset_details, name='details'),
             url(r'^delete/$', views.dataset_delete, name='delete'),
             url(r'^values/', include([
@@ -26,5 +26,13 @@ urlpatterns = [
         url(r'^(?P<path_hash>\w+)/', include([
             url(r'^delete/$', views.file_delete, name='delete'),
         ])),
-    ], namespace='files'))
+    ], namespace='files')),
+    url(r'objects/', include([
+        url(r'^$', views.objects, name='main'),
+        url(r'^add/$', views.object_add, name='add'),
+        url(r'^(?P<name>[\w ]+)/', include([
+            url(r'^$', views.object_details, name='details'),
+            url(r'^delete/$', views.object_delete, name='delete'),
+        ])),
+    ], namespace='objects'))
 ]

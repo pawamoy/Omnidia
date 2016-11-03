@@ -4,7 +4,7 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import Dataset, DatasetValue, File
+from .models import Dataset, DatasetValue, File, Object
 
 
 # def search_persons(request, name):
@@ -101,3 +101,31 @@ def file_delete(request, path_hash):
     if file:
         file.delete()
     return redirect(reverse('files:main'))
+
+
+def objects(request):
+    objects_list = [
+        {
+            'name': obj.name,
+        }
+        for obj in Object.all()
+    ]
+    return render(request, 'objects.html', {'objects': objects_list})
+
+
+def object_add(request):
+    params = request.POST
+    Object.create(name=params.get('name'))
+
+    return redirect(reverse('objects:main'))
+
+
+def object_details(request):
+    return None
+
+
+def object_delete(request, name):
+    obj = Object.get(name=name)
+    if obj:
+        obj.delete()
+    return redirect(reverse('objects:main'))

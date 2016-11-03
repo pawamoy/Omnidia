@@ -2,8 +2,11 @@
 {% load static %}
 
 {% block content %}
+
   <div class="row">
+
     <div class="col-md-12 col-lg-12">
+
       {% for file in files %}
         <div class="node well">
           <h2>{{ file.name }}</h2>
@@ -13,7 +16,10 @@
           </ul>
           <a href="{% url 'files:delete' file.path_hash %}">Delete file</a>
         </div>
-      {% endfor %}
+      {% endfor files %}
+
     </div>
+
   </div>
-{% endblock %}
+
+{% endblock content %}

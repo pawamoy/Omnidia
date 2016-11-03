@@ -18,7 +18,7 @@ class OmnidiaEventHandler(FileSystemEventHandler):
                 if os.path.exists(file.path):
                     print('  not deleted (still exists)')
                 else:
-                    file.delete()
+                    file.delete(from_disk=False)
                     print('  deleted')
         else:
             print('  %s' % event.src_path)

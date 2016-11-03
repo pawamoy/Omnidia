@@ -5,5 +5,10 @@
 .node {
   /*border: 1px solid black;*/
   /*padding: 5px;*/
-  margin: 5px;
+  /*margin-top: 5px;*/
+}
+
+#add_object .form-group {
+  margin-top: 5px;
+  margin-right: 5px;
 }
