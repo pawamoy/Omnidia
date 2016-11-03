@@ -1,7 +1,10 @@
+import os
+
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from .models import Dataset, DatasetValue
+from .models import Dataset, DatasetValue, File
 
 
 # def search_persons(request, name):
@@ -18,6 +21,9 @@ from .models import Dataset, DatasetValue
 #
 #     return render(request, 'home.html', {'persons': persons_list})
 
+def home(request):
+    return render(request, 'home.html')
+
 
 def datasets(request):
     dataset_list = [
@@ -28,7 +34,7 @@ def datasets(request):
         for dataset in Dataset.all()
     ]
 
-    return render(request, 'home.html', {'datasets': dataset_list})
+    return render(request, 'datasets.html', {'datasets': dataset_list})
 
 
 def dataset_add(request):
@@ -71,3 +77,27 @@ def value_delete(request, dataset, value):
     if dataset and value:
         dataset.separate_value(value)
     return redirect(reverse('datasets:main'))
+
+
+def files(request):
+    files_list = [
+        {
+            'name': file.name,
+            'path': file.path,
+            'file_hash': file.file_hash,
+            'path_hash': file.path_hash
+        }
+        for file in File.all()
+    ]
+    return render(request, 'files.html', {'files': files_list})
+
+
+def file_details(request):
+    return None
+
+
+def file_delete(request, path_hash):
+    file = File.get(path_hash=path_hash)
+    if file:
+        file.delete()
+    return redirect(reverse('files:main'))

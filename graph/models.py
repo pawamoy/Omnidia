@@ -79,9 +79,13 @@ class Node(object):
     def properties(self):
         return dict(self.node)
 
-    @property
-    def name(self):
-        return self['name']
+    def _get_name(self):
+        return self.node['name']
+
+    def _set_name(self, value):
+        self.node['name'] = value
+
+    name = property(_get_name, _set_name)
 
     def save(self):
         g.push(self.node)
@@ -126,6 +130,9 @@ class DatasetValue(Node):
 
 
 class File(Node):
+    HASHER = hashlib.sha256
+    BLOCK_SIZE = 65536
+
     def _get_path(self):
         return self.node['path']
 
@@ -134,21 +141,35 @@ class File(Node):
 
     path = property(_get_path, _set_path)
 
-    def _get_hash(self):
-        return self.node['hash']
+    def _get_file_hash(self):
+        return self.node['file_hash']
 
-    def _set_hash(self, value):
-        self.node['hash'] = value
+    def _set_file_hash(self, value):
+        self.node['file_hash'] = value
 
-    hash = property(_get_hash, _set_hash)
+    file_hash = property(_get_file_hash, _set_file_hash)
+
+    def _get_path_hash(self):
+        return self.node['path_hash']
+
+    def _set_path_hash(self, value):
+        self.node['path_hash'] = value
+
+    path_hash = property(_get_path_hash, _set_path_hash)
 
     @staticmethod
-    def hash_file(f, hasher, block_size=65536):
+    def hash_file(f, hasher=HASHER, block_size=BLOCK_SIZE):
+        hasher = hasher()
         buf = f.read(block_size)
         while len(buf) > 0:
             hasher.update(buf)
             buf = f.read(block_size)
         return hasher.hexdigest()
+
+    @staticmethod
+    def hash_path(path, hasher=HASHER):
+        hash_object = hasher(path.encode('utf-8'))
+        return hash_object.hexdigest()
 
     @staticmethod
     def get_path_relative_to_media_root(path):
@@ -160,24 +181,39 @@ class File(Node):
     @staticmethod
     def add(path):
         new_file = File.create(path=path)
-        new_file.update_hash(save=False)
-        new_file.rename_object(path.split(os.sep)[-1])
+        new_file.update_hash()
+        new_file.rename_node(path.split(os.sep)[-1])
+        new_file.save()
 
-    def compute_hash(self):
-        with open(self.path, 'rb') as f:
-            return File.hash_file(f, hashlib.sha256())
+    @staticmethod
+    def in_path(path):
+        re_startswith_path = '^%s%s.*' % (path, os.sep)
+        selection = ns.select('File')
+        matching_files = selection.where("_.path =~ '%s'" % re_startswith_path)
+        return (File(n) for n in matching_files)
 
-    def update_hash(self, save=True):
-        self.hash = self.compute_hash()
-        if save:
-            self.save()
+    def get_file_hash(self):
+        if os.path.exists(self.path):
+            with open(self.path, 'rb') as f:
+                return File.hash_file(f)
 
-    def set_path(self, path, save=True):
+    def get_path_hash(self):
+        return File.hash_path(self.path)
+
+    def update_hash(self):
+        self.update_file_hash()
+        self.update_path_hash()
+
+    def update_file_hash(self):
+        self.file_hash = self.get_file_hash()
+
+    def update_path_hash(self):
+        self.path_hash = self.get_path_hash()
+
+    def set_path(self, path):
         if os.path.isabs(path):
             path = File.get_path_relative_to_media_root(path)
         self.path = path
-        if save:
-            self.save()
 
     def move(self, new_path):
         # Here we assume new_path is relative and inside MEDIA_ROOT,
@@ -200,13 +236,15 @@ class File(Node):
     def rename_file(self, new_name):
         self.move(os.path.join(os.path.dirname(self.get_relative_path()), new_name))
 
-    def rename_object(self, new_name, save=True):
-        self.node['name'] = new_name
-        if save:
-            self.save()
+    def rename_node(self, new_name):
+        self.name = new_name
 
-    def apply_filename_from_object_name(self):
+    def apply_filename_from_node_name(self):
         self.rename_file(slugify(self.name))
 
-    def apply_object_name_from_filename(self):
-        self.rename_object(self.get_filename())
+    def apply_node_name_from_filename(self):
+        self.rename_node(self.get_filename())
+
+
+class Object(Node):
+    pass

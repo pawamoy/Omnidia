@@ -10,8 +10,13 @@
       <a class="navbar-brand" href="{% url "home" %}">
         Omnidia
       </a>
+
     </div>
     <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a href="{% url 'datasets:main' %}">Datasets</a></li>
+        <li><a href="{% url 'files:main' %}">Files</a></li>
+      </ul>
       <ul class="nav navbar-nav navbar-right">
         {% if user.is_authenticated %}
           <li class="dropdown">

@@ -1,5 +1,9 @@
+#content {
+  margin-top: 80px;
+}
+
 .node {
-  border: 1px solid black;
-  padding: 5px;
+  /*border: 1px solid black;*/
+  /*padding: 5px;*/
   margin: 5px;
 }

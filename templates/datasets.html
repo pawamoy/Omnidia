@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12 col-lg-12">
+      <h3>Add a dataset</h3>
+      <form method="get" action="{% url 'datasets:add' %}">
+        Name: <input name="name" title="Name" type="text" />
+        <input type="submit" value="Go">
+      </form>
+
+      {% for dataset in datasets %}
+        <div class="node well">
+          <h2>{{ dataset.name }}</h2>
+          <ul>
+            {% for value in dataset.values %}
+              <li>
+                {{ value }} <a href="{% url 'datasets:values:delete' dataset.name value %}">Delete value</a>
+              </li>
+            {% endfor %}
+          </ul>
+          <form method="get" action="{% url 'datasets:values:add' dataset.name %}">
+            Add a value: <input name="name" title="Name" type="text" />
+            <input type="submit" value="Go">
+          </form>
+          <a href="{% url 'datasets:delete' dataset.name %}">Delete dataset</a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
