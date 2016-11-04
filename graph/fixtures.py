@@ -1,7 +1,23 @@
 # -*- coding: utf-8 -*-
+import cProfile
+
 from graph.models import Dataset
 
 
+def do_cprofile(func):
+    def profiled_func(*args, **kwargs):
+        profile = cProfile.Profile()
+        try:
+            profile.enable()
+            result = func(*args, **kwargs)
+            profile.disable()
+            return result
+        finally:
+            profile.print_stats()
+    return profiled_func
+
+
+@do_cprofile
 def load_music_and_movie_genre_datasets():
     ds_genre_movie = Dataset.create(name='Movie genre')
     ds_genre_music = Dataset.create(name='Music genre')
