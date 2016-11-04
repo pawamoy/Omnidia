@@ -1,6 +1,3 @@
-import os
-
-from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
@@ -29,7 +26,8 @@ def datasets(request):
     dataset_list = [
         {
             'name': dataset.name,
-            'values': dataset.text_values
+            'values': sorted([(dv.name, dv.is_premium) for dv in dataset.values],
+                             key=lambda x: x[0])
         }
         for dataset in Dataset.all()
     ]
@@ -76,6 +74,15 @@ def value_delete(request, dataset, value):
     value = DatasetValue.get(name=value)
     if dataset and value:
         dataset.separate_value(value)
+    return redirect(reverse('datasets:main'))
+
+
+def value_toggle_premium(request, dataset, value):
+    dataset = Dataset.get(name=dataset)
+    value = DatasetValue.get(name=value)
+    if dataset and value:
+        value.is_premium = not value.is_premium
+        value.save()
     return redirect(reverse('datasets:main'))
 
 

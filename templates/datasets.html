@@ -25,7 +25,8 @@
           <ul class="list-unstyled">
             {% for value in dataset.values %}
               <li>
-                {{ value }} <a href="{% url 'datasets:values:delete' dataset.name value %}"><i class="glyphicon glyphicon-remove"></i></a>
+                {{ value.0 }} <a href="{% url 'datasets:values:delete' dataset.name value.0 %}"><i class="glyphicon glyphicon-remove"></i></a>
+                <a href="{% url 'datasets:values:toggle_premium' dataset.name value.0 %}"><i class="glyphicon glyphicon-asterisk text-{% if value.1 %}success{% else %}default{% endif %}"></i></a>
               </li>
             {% endfor values %}
           </ul>

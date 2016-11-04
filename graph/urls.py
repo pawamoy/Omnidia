@@ -17,6 +17,7 @@ urlpatterns = [
                 url(r'^(?P<value>[^/]+)/', include([
                     url(r'^$', views.value_details, name='details'),
                     url(r'^delete/$', views.value_delete, name='delete'),
+                    url(r'^toggle_premium/$', views.value_toggle_premium, name='toggle_premium'),
                 ])),
             ], namespace='values'))
         ])),

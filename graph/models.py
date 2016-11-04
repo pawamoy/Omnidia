@@ -5,30 +5,40 @@ import shutil
 from django.conf import settings
 from django.utils.text import slugify
 
-from py2neo import Node as _Node, Relationship, walk
+from py2neo import Node as _Node, Relationship as _Edge, walk, Subgraph
 
 from . import g, ns
 from .exceptions import MultipleNodeError
 
 
+def node_property(name):
+    def get(self):
+        return self.node[name]
+
+    def set(self, value):
+        self.node[name] = value
+
+    return property(get, set)
+
+
 class Edge(object):
-    def __init__(self, relationship):
-        self.relationship = relationship
+    def __init__(self, edge):
+        self.edge = edge
 
     @classmethod
     def create(cls, *args, **properties):
-        relationship = Relationship(*args, **properties)
-        g.create(relationship)
-        return cls(relationship)
+        edge = _Edge(*args, **properties)
+        g.create(edge)
+        return cls(edge)
 
     def start_node(self):
-        return list(walk(self.relationship))[0]
+        return list(walk(self.edge))[0]
 
     def end_node(self):
         return list(walk(self))[-1]
 
     def delete(self):
-        g.separate(self.relationship)
+        g.separate(self.edge)
 
 
 class Node(object):
@@ -106,7 +116,7 @@ class Dataset(Node):
     @property
     def values(self):
         return [
-            DatasetValue(list(walk(edge.relationship))[0])
+            DatasetValue(list(walk(edge.edge))[0])
             for edge in self.edges(Dataset.EDGE_TYPE, bidirectional=True)
         ]
 
@@ -119,6 +129,12 @@ class Dataset(Node):
         edge = Edge.create(value.node, Dataset.EDGE_TYPE, self.node)
         return edge, value
 
+    def add_values(self, values):
+        nodes = [_Node('DatasetValue', name=v) for v in values]
+        g.create(Subgraph(nodes))
+        edges = [_Edge(n, Dataset.EDGE_TYPE, self.node) for n in nodes]
+        g.create(Subgraph(nodes, edges))
+
     def separate_value(self, value):
         if isinstance(value, str):
             value = DatasetValue.get(name=value)
@@ -127,7 +143,7 @@ class Dataset(Node):
 
 
 class DatasetValue(Node):
-    pass
+    is_premium = node_property('is_premium')
 
 
 class File(Node):
@@ -195,7 +211,7 @@ class File(Node):
 
     def delete(self, from_disk=True):
         super().delete()
-        if from_disk:
+        if from_disk and os.path.exists(self.path):
             os.remove(self.path)
 
     def get_file_hash(self):
