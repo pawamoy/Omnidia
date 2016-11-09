@@ -81,3 +81,6 @@ To empty the database:
 ```bash
 ./scripts/empty_database.sh
 ```
+
+Now try to copy some files into the `media` folder and see if they are correctly added as nodes
+in the database (from both omndia and neo4j pages).
