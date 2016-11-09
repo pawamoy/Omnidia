@@ -67,17 +67,17 @@ Also start Neo4j.
 git clone https://github.com/Pawamoy/Omnidia omnidia
 cd omnidia
 ./scripts/install.sh
-./scripts/run USER PASSWORD
+./scripts/run.sh USER PASSWORD
 # Go to localhost:8000 to see Omnidia's website
 # Go to localhost:7474 to see Neo4j's web browser
 ```
 
 To load some fixtures:
 ```bash
-./scripts/load_fixtures
+./scripts/load_fixtures.sh
 ```
 
 To empty the database:
 ```bash
-./scripts/empty_database
+./scripts/empty_database.sh
 ```
