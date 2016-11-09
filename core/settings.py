@@ -126,3 +126,6 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+NEO4J_USER = os.environ.get('NEO4J_USER', 'neo4j')
+NEO4J_PASS = os.environ.get('NEO4J_PASS', 'neo4j')

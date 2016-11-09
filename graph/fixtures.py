@@ -132,7 +132,6 @@ MUSIC_GENRES = [
 
 @do_cprofile
 def load_genres():
-    g.delete_all()
     ds_movie_genre = Dataset.create(name='Movie genre')
     ds_music_genre = Dataset.create(name='Music genre')
     similar = set(MOVIE_GENRES) & set(MUSIC_GENRES)
@@ -143,8 +142,7 @@ def load_genres():
 
 
 @do_cprofile
-def load3():
-    g.delete_all()
+def load_genres_batch():
     similar = set(MOVIE_GENRES) & set(MUSIC_GENRES)
     create((
         (['Dataset'], {'name': 'Movie genre'}, [('VALUE_OF', COMING_IN, (

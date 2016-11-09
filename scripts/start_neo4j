@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-
-$DATA/isolated/installed/neo4j-community-2.2.5/bin/neo4j start
