@@ -1,6 +1,6 @@
 argh==0.26.2
 decorator==4.0.10
-Django==1.10.3
+Django==1.10.4
 django-rosetta==0.7.12
 django-suit==0.2.22
 httplib2==0.9.2
