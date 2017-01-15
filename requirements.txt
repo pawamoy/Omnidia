@@ -1,5 +1,5 @@
 argh==0.26.2
-decorator==4.0.10
+decorator==4.0.11
 Django==1.10.5
 django-rosetta==0.7.12
 django-suit==0.2.23
