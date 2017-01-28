@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'graph'
+    # 'graph'
+    # 'django_neomodel',
+    'neograph'
 ]
 
 MIDDLEWARE = [
@@ -127,5 +129,7 @@ STATICFILES_DIRS = [
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-NEO4J_USER = os.environ.get('NEO4J_USER', 'neo4j')
-NEO4J_PASS = os.environ.get('NEO4J_PASS', 'neo4j')
+# NEO4J_USER = os.environ.get('NE_O4J_USER', 'neo4j')
+# NEO4J_PASS = os.environ.get('NEO4JPASS', 'neo4j')
+
+NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:admineo4j@localhost:7687')

@@ -18,13 +18,13 @@ from django.contrib import admin
 from django.conf import settings
 from watchdog.observers import Observer
 
-from .watcher import OmnidiaEventHandler
+# from .watcher import OmnidiaEventHandler
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'', include('graph.urls'))
+    # url(r'', include('graph.urls'))
 ]
 
-observer = Observer()
-observer.schedule(OmnidiaEventHandler(), path=settings.MEDIA_ROOT, recursive=True)
-observer.start()
+# observer = Observer()
+# observer.schedule(OmnidiaEventHandler(), path=settings.MEDIA_ROOT, recursive=True)
+# observer.start()
