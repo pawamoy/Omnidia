@@ -19,6 +19,7 @@ class Dataset(DjangoNode):
 
 class DatasetValue(DjangoNode):
     uid = UniqueIdProperty()
+    name = StringProperty(unique_index=True, required=True)
     dataset = RelationshipFrom('Dataset', 'HAS_VALUE', cardinality=OneOrMore)
 
 

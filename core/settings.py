@@ -38,8 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'django_extensions',
+
     # 'graph'
-    # 'django_neomodel',
+    'django_neomodel',
     'neograph'
 ]
 
