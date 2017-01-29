@@ -2,7 +2,7 @@ appdirs==1.4.0
 argh==0.26.2
 Django==1.10.5
 django-neomodel==0.0.1
-neo4j-driver==1.0.2
+neo4j-driver==1.1.0
 neomodel==3.1.0
 packaging==16.8
 pathtools==0.1.2
