@@ -134,4 +134,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # NEO4J_USER = os.environ.get('NE_O4J_USER', 'neo4j')
 # NEO4J_PASS = os.environ.get('NEO4JPASS', 'neo4j')
 
+NEOMODEL_CYPHER_DEBUG = 1
 NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:admineo4j@localhost:7687')

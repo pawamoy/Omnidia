@@ -22,7 +22,7 @@ from watchdog.observers import Observer
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    # url(r'', include('graph.urls'))
+    url(r'', include('neograph.urls'))
 ]
 
 # observer = Observer()

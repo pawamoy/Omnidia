@@ -1,4 +1,5 @@
 import hashlib
+import os
 
 from django.db import models
 
@@ -16,11 +17,17 @@ class Dataset(DjangoNode):
     class Meta:
         app_label = 'neograph'
 
+    def __str__(self):
+        return self.name
+
 
 class DatasetValue(DjangoNode):
     uid = UniqueIdProperty()
     name = StringProperty(unique_index=True, required=True)
     dataset = RelationshipFrom('Dataset', 'HAS_VALUE', cardinality=OneOrMore)
+
+    def __str__(self):
+        return self.name
 
 
 class File(DjangoNode):
@@ -32,9 +39,15 @@ class File(DjangoNode):
     files = Relationship('File', 'FTF')
     objects = Relationship('Object', 'FTO')
 
+    def __str__(self):
+        return str(self.path).split(os.sep)[-1]
+
 
 class Object(DjangoNode):
     uid = UniqueIdProperty()
     name = StringProperty(unique_index=True, required=True)
     files = Relationship('File', 'OTF')
     objects = Relationship('Object', 'OTO')
+
+    def __str__(self):
+        return self.name

@@ -151,3 +151,7 @@ def load_genres():
         for node in both_dvs:
             node.dataset.connect(ds_movie_genre)
             node.dataset.connect(ds_music_genre)
+
+
+def run():
+    load_genres()
