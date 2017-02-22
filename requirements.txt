@@ -6,7 +6,7 @@ django-extensions==1.7.6
 django-neomodel==0.0.3
 ipython==5.2.2
 ipython-genutils==0.1.0
-neo4j-driver==1.0.2
+neo4j-driver==1.1.1
 neomodel==3.2.1
 packaging==16.8
 pathtools==0.1.2
