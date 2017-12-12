@@ -10,7 +10,7 @@ neo4j-driver==1.5.3
 neomodel==3.2.5
 packaging==16.8
 pathtools==0.1.2
-pexpect==4.3.0
+pexpect==4.3.1
 pickleshare==0.7.4
 pkg-resources==0.0.0
 prompt-toolkit==1.0.15
