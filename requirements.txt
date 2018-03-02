@@ -1,7 +1,7 @@
 appdirs==1.4.3
 argh==0.26.2
 decorator==4.2.1
-Django==2.0.1
+Django==2.0.2
 django-extensions==2.0.0
 django-neomodel==0.0.4
 ipython==6.2.1
