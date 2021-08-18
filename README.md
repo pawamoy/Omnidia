@@ -1,5 +1,10 @@
 # Omnidia
 
+[![ci](https://github.com/pawamoy/omnidia/workflows/ci/badge.svg)](https://github.com/pawamoy/omnidia/actions?query=workflow%3Aci)
+[![documentation](https://img.shields.io/badge/docs-mkdocs%20material-blue.svg?style=flat)](https://pawamoy.github.io/omnidia/)
+[![pypi version](https://img.shields.io/pypi/v/omnidia.svg)](https://pypi.org/project/omnidia/)
+[![gitter](https://badges.gitter.im/join%20chat.svg)](https://gitter.im/omnidia/community)
+
 File (and abstract object) manager using a graph database and a web interface.
 
 ## Why is that?
@@ -27,60 +32,52 @@ Omnidia is currently just in alpha version. There are many graph database soluti
 languages, many drivers and many framework that could be used to achieve this. For now the
 chosen technologies are the following:
 
-- [Python](https://www.python.org/) language (v3.5)
+- [Python](https://www.python.org/) language
 - [Neo4j](https://neo4j.com/) graph database
-- [Py2neo](http://py2neo.org/v3/) driver for neo4j
-- [Django](https://www.djangoproject.com/) framework
+- [FastAPI](https://fastapi.tiangolo.com/) framework
 
 The features available are the following:
 
 - [watchdog](https://pypi.python.org/pypi/watchdog) handler to sync database with the content of a
   folder (i.e. copy files here -> nodes are created, delete/move/rename them -> same applied on db)
-- basic web pages to manipulate datasets, files, and objects
-
-Note: datasets are simple lists of values (ex: Country, Language, Music genre, ...),
-but still stored as graph.
 
 You can also visualize the nodes and edges
 with Neo4j's web browser at [localhost:7474](localhost:7474).
 
-## I need help
+## Requirements
 
-I used composition to benefit from py2neo's capabilities and add a Django-like behavior.
-While it is quite easy to understand and use, it really is not performant. I am aware of
-solutions like [neomodel](https://github.com/robinedwards/neomodel)
-or [bulbs](https://github.com/espeed/bulbs),
-but currently they only support Neo4j 2.x and py2neo 2.x.
-Neo4j and py2neo 3.x support would be much appreciated, but I'm open to suggestions.
+Omnidia requires Python 3.6 or above.
 
-I also tried to set up a [Tinkerpop](http://tinkerpop.apache.org/)
-[Gremlin](http://tinkerpop.apache.org/gremlin.html)
-server and console, plus drivers, but failed to.
-
-## Installation (and contribution)
-
-You will first need to install [virtualenv](https://virtualenv.pypa.io/en/stable/)
-and [Neo4j](https://neo4j.com/download/community-edition/).
-Also start Neo4j.
+<details>
+<summary>To install Python 3.6, I recommend using <a href="https://github.com/pyenv/pyenv"><code>pyenv</code></a>.</summary>
 
 ```bash
-git clone https://github.com/Pawamoy/Omnidia omnidia
-cd omnidia
-./scripts/install.sh
-./scripts/run.sh USER PASSWORD
-# Go to localhost:8000 to see Omnidia's website
-# Go to localhost:7474 to see Neo4j's web browser
-```
+# install pyenv
+git clone https://github.com/pyenv/pyenv ~/.pyenv
 
-To load some fixtures:
+# setup pyenv (you should also put these three lines in .bashrc or similar)
+export PATH="${HOME}/.pyenv/bin:${PATH}"
+export PYENV_ROOT="${HOME}/.pyenv"
+eval "$(pyenv init -)"
+
+# install Python 3.6
+pyenv install 3.6.12
+
+# make it available globally
+pyenv global system 3.6.12
+```
+</details>
+
+## Installation
+
+With `pip`:
 ```bash
-./scripts/load_fixtures.sh
+python3.6 -m pip install omnidia
 ```
 
-To empty the database:
+With [`pipx`](https://github.com/pipxproject/pipx):
 ```bash
-./scripts/empty_database.sh
-```
+python3.6 -m pip install --user pipx
 
-Now try to copy some files into the `media` folder and see if they are correctly added as nodes
-in the database (from both omndia and neo4j pages).
+pipx install --python python3.6 omnidia
+```

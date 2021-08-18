@@ -1,2 +1,0 @@
-class MultipleNodeError(Exception):
-    pass

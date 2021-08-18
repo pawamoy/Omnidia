@@ -1,0 +1,1 @@
+::: omnidia.cli
