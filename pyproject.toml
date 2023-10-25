@@ -13,7 +13,13 @@ requires-python = ">=3.6"
 keywords = []
 dynamic = ["version", "classifiers"]
 classifiers = ["Development Status :: 4 - Beta"]
-dependencies = []
+dependencies = [
+    "fastapi~=0.68",
+    "watchdog~=2.1",
+    "neo4j~=4.3",
+    "httpx~=0.18",
+    "loguru~=0.5",
+]
 
 [project.urls]
 Homepage = "https://pawamoy.github.io/omnidia"

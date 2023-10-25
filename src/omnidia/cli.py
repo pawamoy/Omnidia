@@ -12,7 +12,13 @@
 """Module that contains the command line application."""
 
 import argparse
+import os
 from typing import List, Optional
+
+from omnidia.scanner import scan
+from omnidia.watcher import watch
+
+PATH = os.environ.get("NEOWATCH", ".")
 
 
 def get_parser() -> argparse.ArgumentParser:
@@ -22,7 +28,11 @@ def get_parser() -> argparse.ArgumentParser:
     Returns:
         An argparse parser.
     """
-    return argparse.ArgumentParser(prog="omnidia")
+    parser = argparse.ArgumentParser(prog="omnidia")
+    parser.add_argument("--scan", action="store_true", default=False)
+    parser.add_argument("--watch", action="store_true", default=False)
+    parser.add_argument("--path", default=PATH)
+    return parser
 
 
 def main(args: Optional[List[str]] = None) -> int:
@@ -39,5 +49,8 @@ def main(args: Optional[List[str]] = None) -> int:
     """
     parser = get_parser()
     opts = parser.parse_args(args=args)
-    print(opts)  # noqa: WPS421 (side-effect in main is fine)
+    if opts.scan:
+        scan(opts.path)
+    if opts.watch:
+        watch(opts.path)
     return 0
